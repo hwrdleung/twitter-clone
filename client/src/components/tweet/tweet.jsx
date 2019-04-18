@@ -4,7 +4,7 @@ import './style.css';
 class Tweet extends Component {
   render() {
     return (
-      <div className="tweet-container container-fluid p-3 my-0 text-right bg-light shadow-sm">
+      <div className="tweet-container container-fluid p-3 my-0 text-right bg-light shadow">
         <div className="container d-flex">
           <div className="">
             <img src="https://images.pexels.com/photos/2044231/pexels-photo-2044231.jpeg" className="rounded-circle tweet-portrait" />

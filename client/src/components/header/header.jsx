@@ -17,14 +17,19 @@ class Header extends Component {
     }
 
     return (
-      <div className="">
+      <div>
         <div id="splash-container">
-          <img className="img-fluid p-0" src="https://images.pexels.com/photos/1295138/pexels-photo-1295138.jpeg" />
+          <img className="img-fluid mx-auto p-0" src="https://images.pexels.com/photos/1295138/pexels-photo-1295138.jpeg" />
         </div>
 
-        <div className="container-fluid shadow-sm my-0 p-0">
+        <div className="container-fluid bg-light shadow-sm my-0 p-0">
           <div className="container">
             <div className="d-flex justify-content-center flex-wrap mx-auto">
+            <ul className="stat-box list-unstyled text-center">
+                <li>Tweets</li>
+                <li className="font-weight-bold">{this.props.data.tweets.length}</li>
+              </ul>
+
               <ul className="stat-box list-unstyled text-center">
                 <li>Following</li>
                 <li className="font-weight-bold">{this.props.data.following.length}</li>

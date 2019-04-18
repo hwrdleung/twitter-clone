@@ -8,7 +8,7 @@ class DashboardFeed extends Component {
     let feed = this.props.data.feed.map((tweet, key) => <Tweet key={tweet.id + key} data={tweet}/>);
 
     return (
-      <div className="col-md-9">
+      <div className="col-md-7">
         <Tweeter />
         {feed}
       </div>

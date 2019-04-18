@@ -16,7 +16,7 @@ class NavBar extends Component {
       {isLoggedIn ? ( 
         <div id="navBarMenu" className="collapse navbar-collapse">
           <div className="navbar-nav ml-auto">
-            <NavLink to="/dashboard" className="nav-item nav-link ml-auto">Dashboard</NavLink>
+            <NavLink to="/dashboard" className="nav-item nav-link ml-auto">{this.props.data.username}</NavLink>
             <NavLink to="/settings" className="nav-item nav-link ml-auto">Settings</NavLink>
             <NavLink to="/public" className="nav-item nav-link ml-auto">Public</NavLink>
             <a className="nav-item nav-link ml-auto">Sign out</a>

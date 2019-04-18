@@ -14,9 +14,9 @@ const mapDispatchToProps = dispatch => ({
 class SettingsPage extends Component {
   render() {
     return (
-      <div className="container-fluid full-height d-flex justify-content-center align-items-center">
-        <div id="settings-content-container" className="shadow p-5">
-          <div className="py-3">
+      <div className="container-fluid full-height d-flex justify-content-center align-items-center bg-blue-light">
+        <div id="settings-content-container" className="shadow p-5 bg-light">
+          <div className="pb-3">
             <h1 className="col-sm-12">Account settings</h1>
             <h5 className="col-sm-12">{this.props.user.firstName} {this.props.user.lastName}</h5>
             <h6 className="col-sm-12">@{this.props.user.username}</h6>

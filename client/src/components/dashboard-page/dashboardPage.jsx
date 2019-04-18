@@ -17,9 +17,9 @@ const mapDispatchToProps = dispatch => ({
 class DashboardPage extends Component {
   render() {
     return (
-      <div className="bg-light">
+      <div className="bg-blue-light">
         <Header data={this.props.user}/>
-        <div className="container my-5">
+        <div className="container py-5">
           <div className="row">
             <Bio data={this.props.user}/>
             <DashboardFeed data={this.props.user}/>

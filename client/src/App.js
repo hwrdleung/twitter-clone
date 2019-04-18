@@ -34,7 +34,7 @@ class App extends Component {
     return (
       <div>
         <BrowserRouter>
-          <NavBar/>
+          <NavBar data={this.props.user}/>
           {/* <button onClick={this.props.action}>Test redux action</button>
           <button onClick={this.axiosTest}>axios test</button>
           <pre>

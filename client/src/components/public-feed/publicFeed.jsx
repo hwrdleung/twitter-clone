@@ -9,7 +9,7 @@ class PublicFeed extends Component {
     let feed = this.props.data.tweets.map((tweet, key) => <Tweet key={key + tweet.id} data={tweet} />);
 
     return (
-      <div className="col-md-9">
+      <div className="col-md-7">
         {feed}
       </div>
 

@@ -17,7 +17,11 @@ textarea {
 
 
 .bg-blue-light {
-  background: lightblue;
+  background: rgb(219, 244, 252);
+}
+
+.bg-white {
+  background: #FFF;
 }
 
 .full-height {
