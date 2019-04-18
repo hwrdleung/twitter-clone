@@ -1,0 +1,23 @@
+.tweet-container {
+    max-width: 600px;
+}
+
+.tweet-portrait {
+    width: 50px;
+    height: 50px;
+}
+
+.tweet-header > * {
+    font-size: 0.8rem;
+    margin-right: 1rem;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    min-width: 50px;
+    text-align: left;
+}
+
+.tweet-body {
+    font-size: 1rem;
+    text-align: left;
+}

@@ -1,10 +1,22 @@
 import React, { Component } from 'react';
+import Tweeter from '../tweeter/tweeter';
+import Tweet from '../tweet/tweet';
 import './style.css';
 
 class DashboardFeed extends Component {
   render() {
     return (
-      <h1>DASHBOARD FEED</h1>
+      <div className="col-md-9">
+        <Tweeter />
+        <Tweet />
+        <Tweet />
+        <Tweet />
+        <Tweet />
+        <Tweet />
+        <Tweet />
+        <Tweet />
+
+      </div>
     );
   }
 }

@@ -10,6 +10,9 @@ import PublicPage from './components/public-page/publicPage';
 import SettingsPage from './components/settings-page/settingsPage';
 import ErrorPage from './components/error-page/errorPage';
 import './App.css';
+import RegistrationPage from './components/registration-page/registrationPage';
+import LoginPage from './components/login-page/loginPage';
+
 
 const mapStateToProps = state => ({
   ...state
@@ -31,19 +34,21 @@ class App extends Component {
     return (
       <div>
         <BrowserRouter>
-          <NavBar />
-          <button onClick={this.props.action}>Test redux action</button>
+          <NavBar/>
+          {/* <button onClick={this.props.action}>Test redux action</button>
           <button onClick={this.axiosTest}>axios test</button>
           <pre>
             {
               JSON.stringify(this.props)
             }
-          </pre>
+          </pre> */}
           <Switch>
             <Route path="/" component={HomePage} exact />
             <Route path="/dashboard" component={DashboardPage} />
             <Route path="/public" component={PublicPage} />
             <Route path="/settings" component={SettingsPage} />
+            <Route path="/login" component={LoginPage} />
+            <Route path="/registration" component={RegistrationPage} />
             <Route component={ErrorPage} />
           </Switch>
         </BrowserRouter>

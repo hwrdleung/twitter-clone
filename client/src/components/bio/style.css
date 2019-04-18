@@ -1,0 +1,9 @@
+#portrait {
+    max-width: 12rem;
+    width: 100%;
+    height: auto;
+}
+
+#bio-container > * {
+    margin: 0;
+}

@@ -1,0 +1,14 @@
+#splash-container {
+    height: 100vh;
+    max-height: 50vh;
+    overflow: hidden;
+}
+
+.stat-box {
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}

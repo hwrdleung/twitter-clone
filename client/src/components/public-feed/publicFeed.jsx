@@ -1,10 +1,20 @@
 import React, { Component } from 'react';
+import Tweet from '../tweet/tweet';
 import './style.css';
 
 class PublicFeed extends Component {
   render() {
     return (
-      <h1>PUBLIC FEED</h1>
+      <div className="col-md-9">
+        <Tweet />
+        <Tweet />
+        <Tweet />
+        <Tweet />
+        <Tweet />
+        <Tweet />
+        <Tweet />
+      </div>
+
     );
   }
 }

@@ -1,0 +1,8 @@
+#settings-content-container {
+    width: 95%;
+    max-width: 650px;
+}
+
+#settings-content-container p {
+    margin-bottom: 0;
+}
