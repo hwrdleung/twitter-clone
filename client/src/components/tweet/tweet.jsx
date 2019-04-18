@@ -12,12 +12,12 @@ class Tweet extends Component {
 
           <div className="ml-4 my-0">
             <div className="d-flex flex-wrap tweet-header">
-              <p className="font-weight-bold">First Last</p>
-              <p className="text-secondary">@username</p>
-              <p className="text-secondary">April 18, 2019</p>
+              <p className="font-weight-bold">{this.props.data.user.firstName}, {this.props.data.user.lastName}</p>
+              <p className="text-secondary">@{this.props.data.user.username}</p>
+              <p className="text-secondary">{this.props.data.date}</p>
             </div>
 
-            <p className="tweet-body m-0">Hello world! How's your day going?</p>
+            <p className="tweet-body m-0">{this.props.data.text}</p> 
 
             <div className="d-flex mx-auto p-2 btn-group-sm">
               <button className="btn btn-danger mr-1">Like</button>
@@ -25,7 +25,8 @@ class Tweet extends Component {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+
     );
   }
 }

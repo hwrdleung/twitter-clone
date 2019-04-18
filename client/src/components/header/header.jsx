@@ -2,7 +2,20 @@ import React, { Component } from 'react';
 import './style.css';
 
 class Header extends Component {
+
+
   render() {
+
+    let sumLikes = () => {
+      let sum = 0;
+
+      this.props.data.tweets.forEach(tweet => {
+        sum += tweet.likes;
+      })
+
+      return sum.toString();
+    }
+
     return (
       <div className="">
         <div id="splash-container">
@@ -14,17 +27,17 @@ class Header extends Component {
             <div className="d-flex justify-content-center flex-wrap mx-auto">
               <ul className="stat-box list-unstyled text-center">
                 <li>Following</li>
-                <li className="font-weight-bold">95</li>
+                <li className="font-weight-bold">{this.props.data.following.length}</li>
               </ul>
 
               <ul className="stat-box list-unstyled text-center">
                 <li>Followers</li>
-                <li className="font-weight-bold">34</li>
+                <li className="font-weight-bold">{this.props.data.followers.length}</li>
               </ul>
 
               <ul className="stat-box list-unstyled text-center">
                 <li>Likes</li>
-                <li className="font-weight-bold">51</li>
+                <li className="font-weight-bold">{sumLikes()}</li>
               </ul>
             </div>
           </div>

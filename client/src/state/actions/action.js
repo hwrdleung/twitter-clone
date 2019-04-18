@@ -1,6 +1,6 @@
-export const action = () => dispatch => {
+export const action = (str) => dispatch => {
     dispatch({
         type: 'SIMPLE_ACTION',
-        payload: 'result_of_simple_action'
+        payload: str
     })
 }
