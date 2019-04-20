@@ -5,17 +5,6 @@ class Header extends Component {
 
 
   render() {
-
-    let sumLikes = () => {
-      let sum = 0;
-
-      this.props.data.tweets.forEach(tweet => {
-        sum += tweet.likes;
-      })
-
-      return sum.toString();
-    }
-
     return (
       <div>
         <div id="splash-container">
@@ -27,22 +16,22 @@ class Header extends Component {
             <div className="d-flex justify-content-center flex-wrap mx-auto">
             <ul className="stat-box list-unstyled text-center">
                 <li>Tweets</li>
-                <li className="font-weight-bold">{this.props.data.tweets.length}</li>
+                <li className="font-weight-bold">{this.props.data.stats.tweets}</li>
               </ul>
 
               <ul className="stat-box list-unstyled text-center">
                 <li>Following</li>
-                <li className="font-weight-bold">{this.props.data.following.length}</li>
+                <li className="font-weight-bold">{this.props.data.stats.following}</li>
               </ul>
 
               <ul className="stat-box list-unstyled text-center">
                 <li>Followers</li>
-                <li className="font-weight-bold">{this.props.data.followers.length}</li>
+                <li className="font-weight-bold">{this.props.data.stats.followers}</li>
               </ul>
 
               <ul className="stat-box list-unstyled text-center">
                 <li>Likes</li>
-                <li className="font-weight-bold">{sumLikes()}</li>
+                <li className="font-weight-bold">{this.props.data.stats.likes}</li>
               </ul>
             </div>
           </div>

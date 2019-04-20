@@ -1,21 +1,56 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-
+import { connect } from 'react-redux';
+import { action, register, getUserData } from '../../state/actions/action';
 import './style.css';
+
+const mapStateToProps = state => ({
+  ...state
+});
+
+const mapDispatchToProps = dispatch => ({
+  action: (str) => dispatch(action(str)),
+  register: (formData) => dispatch(register(formData)),
+  getUserData: (token) => dispatch(getUserData(token))
+
+});
 
 class HomePage extends Component {
   axiosTest = () => {
-    axios.put('api/user/updateUserData', {
-      bio: 'the bio has changed',
+    let formData = {
+      firstName: 'Howard',
+      lastName: 'Leung',
+      email: 'emaeal@addre.com',
+      username: 'nwes2',
+      password: 'password123',
+      birthday: 'March 3, 1989',
+      city: 'Aiea',
+      state: 'HI',
+      bio: 'Hello world :)'
+    }
 
-    },
-      {
-        headers: {
-          'x-auth-token': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Y2I5ZjI4Zjc3NGNlYTNhYjBjZDNmNzEiLCJpYXQiOjE1NTU2OTAxMjd9.ybAP4ki37EGl5SJYq9FCtXZB_6j-UNe535KJ-_TOjtE"
-        }
-      }).then(res => {
-        console.log(res.data);
-      })
+    console.log(this.props)
+    this.props.register(formData);
+    // axios.put('api/auth/register', formData).then(res => {
+    //     console.log(res.data);
+    //   })
+  }
+
+  test = () => {
+    console.log(this.props);
+  }
+
+  componentDidMount() {
+    this.detectUserSession();
+  }
+
+  detectUserSession = () => {
+    if (sessionStorage.getItem('twitterCloneToken')) {
+      let token = sessionStorage.getItem('twitterCloneToken')
+      this.props.getUserData(token).then(res => {
+        console.log(this.props);
+        if (res.success) this.props.history.push('/dashboard');
+      }).catch(error => console.log(error));
+    }
   }
 
   render() {
@@ -35,8 +70,8 @@ class HomePage extends Component {
               <h5 className="mb-5">Secondary slogan</h5>
               <a href="/registration" className="btn btn-primary my-1 text-light">Sign Up</a>
               <a href="/login" className="btn btn-primary my-1 text-light">Log in</a>
-              <button onClick={this.axiosTest}>axios test</button>
-
+              <button onClick={this.axiosTest}>axios registration test</button>
+              <button onClick={this.test}>test</button>
             </div>
           </div>
         </div>
@@ -45,4 +80,4 @@ class HomePage extends Component {
   }
 }
 
-export default HomePage;
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage);

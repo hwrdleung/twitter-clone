@@ -21,10 +21,10 @@ router.get('/getUserData', verifyToken, (req, res) => {
     console.log(req._id);
     User.findOne({ _id: req._id }).then(user => {
         if (!user) {
-            res.json(new ServerServerResponse(false, 'User not found.'));
+            res.json(new ServerResponse(false, 'User not found.'));
             throw ('User not found.');
         } else {
-            res.json(new ServerServerResponse(true, `User data for ${user.username}`, user));
+            res.json(new ServerResponse(true, `User data for ${user.username}`, user));
         }
         console.log(user);
     }).catch(error => console.log(error));
@@ -40,7 +40,7 @@ router.put('/updateUserData', verifyToken, (req, res) => {
     // Remember to stay consistent with mongoDB schema in the front end when sending form data
     User.findOne({ _id: req._id }).then(user => {
         if (!user) {
-            res.json(new ServerServerResponse(false, 'User not found.'));
+            res.json(new ServerResponse(false, 'User not found.'));
             throw ('User not found.');
         } else {
             if (body.city) user.city = body.city;
@@ -55,10 +55,10 @@ router.put('/updateUserData', verifyToken, (req, res) => {
     }).then(user => {
         console.log(user)
         if (!user) {
-            res.json(new ServerServerResponse(false, 'Failed to update user data.'));
+            res.json(new ServerResponse(false, 'Failed to update user data.'));
             throw ('Failed to update user data');
         } else {
-            res.json(new ServerServerResponse(true, 'User data updated.', user));
+            res.json(new ServerResponse(true, 'User data updated.', user));
         }
     }).catch(error => console.log(error));
 });
@@ -208,7 +208,13 @@ router.post('/like', verifyToken, (req, res) => {
             res.json(new ServerResponse(false, 'System error: Unable to like tweet.'));
             throw ('System error: Unable to like tweet.');
         } else {
-            res.json(new ServerResponse(true, 'Tweet liked.', profile));
+            let likedTweet; // Respond with the liked tweet
+
+            profile.tweets.forEach(tweet => {
+                if(tweet._id.toString() === body.tweetId) likedTweet = tweet
+            })
+
+            res.json(new ServerResponse(true, 'Tweet liked.', likedTweet));
         }
     }).catch(error => console.log(error))
 });

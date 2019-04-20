@@ -4,8 +4,10 @@ import Tweet from '../tweet/tweet';
 import './style.css';
 
 class DashboardFeed extends Component {
+
+
   render() {
-    let feed = this.props.data.feed.map((tweet, key) => <Tweet key={tweet.id + key} data={tweet}/>);
+    let feed = this.props.data.tweets.slice().reverse().map((tweet, key) => <Tweet key={tweet._id + key} data={tweet}/>);
 
     return (
       <div className="col-md-7">

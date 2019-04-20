@@ -3,7 +3,7 @@ import Header from '../header/header'
 import PublicFeed from '../public-feed/publicFeed'
 import Bio from '../bio/bio';
 import { connect } from 'react-redux';
-import { action } from '../../state/actions/action';
+import { getProfileData } from '../../state/actions/action';
 import './style.css';
 
 const mapStateToProps = state => ({
@@ -11,19 +11,26 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  action: (str) => dispatch(action(str))
+  getProfileData: (username) => dispatch(getProfileData(username))
 });
 
 
 class PublicPage extends Component {
+  componentDidMount() {
+    let username = this.props.match.params.username;
+    this.props.getProfileData(username).then(res => {
+      console.log(res)
+    }).catch(error => console.log(error));
+  }
+
   render() {
     return (
       <div className="bg-blue-light">
         <Header data={this.props.profile} />
         <div className="container py-5">
           <div className="row">
-            <Bio data={this.props.profile}/>
-            <PublicFeed data={this.props.profile}/>
+            <Bio data={this.props.profile} />
+            <PublicFeed data={this.props.profile} />
           </div>
         </div>
       </div>

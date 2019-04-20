@@ -85,7 +85,7 @@ router.post('/register', (req, res) => {
             city: body.city,
             state: body.state,
             birthday: body.birthday,
-            bio: body.bio,
+            bio: 'Hello world!',
             profileImgUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png',
             splashImgUrl: 'https://image.freepik.com/free-photo/blue-sky-with-clouds_1112-454.jpg',
             tweets: [],

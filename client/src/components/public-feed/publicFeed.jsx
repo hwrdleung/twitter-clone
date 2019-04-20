@@ -6,7 +6,7 @@ class PublicFeed extends Component {
 
 
   render() {
-    let feed = this.props.data.tweets.map((tweet, key) => <Tweet key={key + tweet.id} data={tweet} />);
+    let feed = this.props.data.tweets.map((tweet, key) => <Tweet key={key + tweet._id} data={tweet} />);
 
     return (
       <div className="col-md-7">

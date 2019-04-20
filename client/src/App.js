@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { action } from './state/actions/action';
-import axios from 'axios';
 import NavBar from './components/nav-bar/navBar';
 import HomePage from './components/home-page/homePage';
 import DashboardPage from './components/dashboard-page/dashboardPage';
@@ -18,18 +17,15 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  action: () => dispatch(action())
+  action: () => dispatch(action()),
 });
 
 class App extends Component {
-
-
-
   render() {
     return (
       <div>
         <BrowserRouter>
-          <NavBar data={this.props.user}/>
+          <NavBar data={this.props.user} />
           {/* <button onClick={this.props.action}>Test redux action</button>
           <button onClick={this.axiosTest}>axios test</button>
           <pre>
@@ -40,7 +36,7 @@ class App extends Component {
           <Switch>
             <Route path="/" component={HomePage} exact />
             <Route path="/dashboard" component={DashboardPage} />
-            <Route path="/public" component={PublicPage} />
+            <Route path="/profile/:username" component={PublicPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/login" component={LoginPage} />
             <Route path="/registration" component={RegistrationPage} />
