@@ -1,7 +1,23 @@
 import React, { Component } from 'react';
+import axios from 'axios';
+
 import './style.css';
 
 class HomePage extends Component {
+  axiosTest = () => {
+    axios.put('api/user/updateUserData', {
+      bio: 'the bio has changed',
+
+    },
+      {
+        headers: {
+          'x-auth-token': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Y2I5ZjI4Zjc3NGNlYTNhYjBjZDNmNzEiLCJpYXQiOjE1NTU2OTAxMjd9.ybAP4ki37EGl5SJYq9FCtXZB_6j-UNe535KJ-_TOjtE"
+        }
+      }).then(res => {
+        console.log(res.data);
+      })
+  }
+
   render() {
     return (
       <div className="container-fluid" id="home-page-container">
@@ -19,6 +35,8 @@ class HomePage extends Component {
               <h5 className="mb-5">Secondary slogan</h5>
               <a href="/registration" className="btn btn-primary my-1 text-light">Sign Up</a>
               <a href="/login" className="btn btn-primary my-1 text-light">Log in</a>
+              <button onClick={this.axiosTest}>axios test</button>
+
             </div>
           </div>
         </div>
