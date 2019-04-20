@@ -13,7 +13,6 @@ import './App.css';
 import RegistrationPage from './components/registration-page/registrationPage';
 import LoginPage from './components/login-page/loginPage';
 
-
 const mapStateToProps = state => ({
   ...state
 });
@@ -24,11 +23,7 @@ const mapDispatchToProps = dispatch => ({
 
 class App extends Component {
 
-  axiosTest = () => {
-    axios.get('https://jsonplaceholder.typicode.com/todos/1').then(res => {
-      console.log(res);
-    })
-  }
+
 
   render() {
     return (
