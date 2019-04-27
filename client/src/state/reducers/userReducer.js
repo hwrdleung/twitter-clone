@@ -3,7 +3,7 @@ import { initialUserState } from '../initialState'
 export default (state = {}, action) => {
   switch (action.type) {
     case 'UPDATE_USER_STATE':
-      return {...state, ...action.payload};
+      return { ...state, ...action.payload };
     case 'UPDATE_USER_FEED':
       return { ...state, feed: action.payload }
     case 'CLEAR_USER_STATE':
@@ -24,6 +24,8 @@ export default (state = {}, action) => {
       return newState;
     case 'SET_USER_CURRENT_VIEW':
       return { ...state, currentView: action.payload }
+    case 'UPDATE_USER_MESSAGES':
+      return { ...state, messages: action.payload }
     default:
       return state
   }

@@ -3,7 +3,6 @@ import Header from '../header/header'
 import DashboardFeed from '../dashboard-feed/dashboardFeed'
 import Bio from '../bio/bio';
 import { connect } from 'react-redux';
-import { getUserData } from '../../state/actions/action';
 import './style.css';
 import Followers from '../followers/followers';
 import Following from '../following/following';

@@ -19,7 +19,8 @@ class Following extends Component {
     constructor() {
         super();
         this.state = {
-            following: []
+            following: [],
+            pendingFollows: []
         }
     }
 
@@ -27,15 +28,31 @@ class Following extends Component {
         this.refreshState();
     }
 
-    refreshState() {
-        Promise.all([
-            getUserCards(this.props.user.following)
-        ]).then(results => {
-            if (results[0].data.success) this.setState({ following: results[0].data.body })
-        }).catch(error => console.log(error));
+    refreshState = (props) => {
+        if (!props) props = this.props;
+
+        this.setState({ pendingFollows: [] });
+        this.setState({ following: [] });
+
+        if (props.isDashboard) {
+            getUserCards(this.props.user.following).then(res => {
+                console.log(res)
+                this.setState({ following: res.data.body });
+            }).catch(error => console.log(error));
+
+            getUserCards(props.user.outgoingFollowRequests).then(res => {
+                console.log(res)
+                this.setState({ pendingFollows: res.data.body });
+            }).catch(error => console.log(error));
+        } else if (!props.isDashboard) {
+            getUserCards(props.profile.following).then(res => {
+                console.log(res)
+                this.setState({ following: res.data.body });
+            }).catch(error => console.log(error));
+        }
     }
 
-    renderUserCards() {
+    renderUserCards = () => {
         if (this.state.following.length === 0) {
             return (
                 <div className="container-fluid">
@@ -47,9 +64,30 @@ class Following extends Component {
         }
     }
 
+    renderPendingFollows = () => {
+        if (this.state.pendingFollows.length) {
+            return (
+                <React.Fragment>
+                    <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
+                    <h5>Pending:</h5>
+                    <div className="d-flex flex-row mb-5">
+                        {this.state.pendingFollows.map(pendingFollow => (
+                            <div className="text-center">
+                                <UserCard data={pendingFollow} key={'request' + new Date().toString()} />
+                            </div>
+                        ))
+                        }
+                    </div>
+                </React.Fragment>
+            );
+        }
+    }
+
     render() {
         return (
             <div>
+                {this.props.isDashboard ? this.renderPendingFollows() : null}
+
                 <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
                 <h5>Following:</h5>
                 <div className="d-flex flex-row flex-wrap">

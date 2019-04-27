@@ -473,6 +473,52 @@ router.post('/follow', verifyToken, (req, res) => {
     }).catch(error => console.log(error));
 });
 
+router.post('/messages', verifyToken, (req, res) => {
+    let body = req.body;
+    /*
+        body = {
+            task : 'READ' || 'DELETE',
+            messageId : id
+        }
+
+        returns new message object
+    */
+    User.findOne({ _id: req._id }).then(user => {
+        switch (body.task) {
+            case 'READ':
+                for (let i = 0; i < user.messages.length; i++) {
+                    if (user.messages[i]._id === body.messageId) user.messages[i].read = true;
+                }
+                break;
+            case 'DELETE':
+                for (let i = 0; i < user.messages.length; i++) {
+                    if (user.messages[i]._id === body.messageId) user.messages.splice(i, 1);
+                }
+                break;
+        }
+
+        return user.save();
+    }).then(user => {
+        if (!user) {
+            res.json(new ServerResponse(false, 'System error: An error occured while updating user messages.'));
+            throw ('System error: An error occured while updating user messages.');
+        } else {
+            res.json(new ServerResponse(true, `Returning user's messages.`, user.messages));
+        }
+    }).catch(error => console.log(error));
+});
+
+router.get('/messages', verifyToken, (req, res) => {
+    // Returns user's messages array
+    User.findOne({ _id: req._id }).then(user => {
+        if (!user) {
+            res.json(new ServerResponse(false, 'User not found.'));
+            throw ('User not found.');
+        } else {
+            res.json(new ServerResponse(true, `Returning user's messages.`, user.messages));
+        }
+    }).catch(error => console.log(error));
+});
 
 module.exports = router;
 

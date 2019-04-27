@@ -29,10 +29,10 @@ class Tweet extends Component {
     }
   }
 
-  componentWillReceiveProps(newProps){
+  componentWillReceiveProps(newProps) {
     // Reply modal: On reply tweet success, close reply modal
-    if(newProps.data.replies.length === this.props.data.replies.length + 1){
-      this.setState({displayReplyModal:false})
+    if (newProps.data.replies.length === this.props.data.replies.length + 1) {
+      this.setState({ displayReplyModal: false })
     }
   }
 
@@ -76,10 +76,10 @@ class Tweet extends Component {
     let minutes = dateObj.getMinutes() > 10 ? dateObj.getMinutes() : '0' + dateObj.getMinutes();
     let amPm = 'AM';
 
-    if(hours > 11){
+    if (hours > 11) {
       amPm = 'PM';
       hours = hours - 12;
-      hours = hours===0 ? 12 : hours;
+      hours = hours === 0 ? 12 : hours;
     }
 
     return `${month} ${date}, ${year} ${hours}:${minutes} ${amPm}`;
@@ -107,6 +107,17 @@ class Tweet extends Component {
     }
   }
 
+  renderTweeter() {
+    console.log(this.props.isDashboard);
+    if (!this.props.isDashboard &&
+      this.props.profile.isPrivate &&
+      !this.props.profile.includes(this.props.user.username)) {
+        return <p>This profile is set to private.</p>
+    } else {
+      return <Tweeter isReply={true} data={this.props.data} />
+    }
+  }
+
   renderReplyModal() {
     if (this.state.displayReplyModal) {
       return (
@@ -119,7 +130,7 @@ class Tweet extends Component {
           </Modal.Header>
 
           <Modal.Body className="p-3 m-0">
-            <Tweeter isReply={true} data={this.props.data} />
+            {this.renderTweeter()}
           </Modal.Body>
         </Modal.Dialog>
       )

@@ -23,7 +23,7 @@ class Bio extends Component {
     return (
       <div>
         <div id="portrait-container" className="mb-2">
-          <img className="img-thumbnail" src="https://images.pexels.com/photos/2044231/pexels-photo-2044231.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940" />
+          <img className="img-thumbnail" src={this.props.data.profileImgUrl} />
         </div>
 
         <h5 className="font-weight-bold">{this.props.data.firstName}, {this.props.data.lastName}</h5>

@@ -247,5 +247,41 @@ export const followRequestResponse = (data, token) => dispatch => {
     }).catch(error => console.log(error));
 }
 
+export const getMessages = (token) => dispatch => {
+    return new Promise((resolve, reject) => {
+        let headers = {
+            'x-auth-token': token
+        }
+
+        axios.get('/api/user/messages', { headers }).then(res => {
+            if (res.data.success) {
+                dispatch({
+                    type: 'UPDATE_USER_MESSAGES',
+                    payload: res.data.body
+                })
+            }
+            resolve(res.data);
+        }).catch(error => console.log(error));
+    }).catch(error => console.log(error));
+}
+
+export const updateMessages = (data, token) => dispatch => {
+    return new Promise((resolve, reject) => {
+        let headers = {
+            'x-auth-token': token
+        }
+
+        axios.post('/api/user/messages', data, { headers }).then(res => {
+            if (res.data.success) {
+                dispatch({
+                    type: 'UPDATE_USER_MESSAGES',
+                    payload: res.data.body
+                })
+            }
+            resolve(res.data);
+        }).catch(error => console.log(error));
+    }).catch(error => console.log(error));
+}
+
 
 

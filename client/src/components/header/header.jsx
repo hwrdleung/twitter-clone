@@ -38,11 +38,14 @@ class Header extends Component {
     }
   }
 
+  getSplashImgCss = () => {
+    return `url(${this.props.data.splashImgUrl})`
+  }
+
   render() {
     return (
       <div style={{ maxWidth: '100vw' }}>
-        <div id="splash-container" className="overflow-hidden" style={{ backgroundImage: "url('https://images.pexels.com/photos/1295138/pexels-photo-1295138.jpeg')" }}>
-          {/* <img className="mx-auto p-0" src="https://images.pexels.com/photos/1295138/pexels-photo-1295138.jpeg" /> */}
+        <div id="splash-container" className="overflow-hidden" style={{ backgroundImage: this.getSplashImgCss() }}>
         </div>
 
         <div id="tab-container" className="bg-light shadow-sm my-0 p-0 d-flex flex-row flex-wrap justify-content-center align-items center">

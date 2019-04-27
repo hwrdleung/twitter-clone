@@ -27,10 +27,6 @@ class Followers extends Component {
         this.refreshState();
     }
 
-    componentDidUpdate(){
-
-    }
-
     refreshState = (props) => {
         if(!props) props = this.props;
 

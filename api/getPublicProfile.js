@@ -1,28 +1,35 @@
-function getPublicProfile(user){
-    // This function takes in a user object straight from MongoDB and returns
-    // an object that excludes any private information per user.settings
+function getPublicProfile(profile, user) {
+    // This function takes in a profile object straight from MongoDB and returns
+    // an object that excludes any private information per profile.settings
     let publicProfile = {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-        dateJoined : user.dateJoined,
-        profileImgUrl: user.profileImgUrl,
-        splashImgUrl : user.splashImgUrl,
-        followers : user.followers,
-        following: user.following,
-        isPrivate: user.settings.isPrivate,
-        stats: user.stats,
-        _id: user._id
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        username: profile.username,
+        dateJoined: profile.dateJoined,
+        profileImgUrl: profile.profileImgUrl,
+        splashImgUrl: profile.splashImgUrl,
+        followers: profile.followers,
+        following: profile.following,
+        isPrivate: profile.settings.isPrivate,
+        stats: profile.stats,
+        _id: profile._id,
+        bio: profile.bio,
+        email: profile.settings.displayEmail ? profile.email : null,
+        city: profile.settings.displayLocation ? profile.city : null,
+        state: profile.settings.displayLocation ? profile.state : null,
+        birthday: profile.settings.displayBirthday ? profile.birthday : null
     }
 
-    if(!user.settings.isPrivate){
-        publicProfile.bio = user.bio;
-        publicProfile.email = user.settings.displayEmail ? user.email : null;
-        publicProfile.city = user.settings.displayLocation ? user.city : null;
-        publicProfile.state = user.settings.displayLocation ? user.state : null;
-        publicProfile.birthday =  user.settings.displayBirthday ? user.birthday : null;
-        publicProfile.tweets = user.settings.isPrivate ? null : user.tweets;
+    if (!profile.settings.isPrivate) {
+        publicProfile.tweets = profile.tweets;
     }
+
+    if (user) {
+        if (profile.settings.isPrivate && profile.followers.includes(user.username) || profile.username === user.username) {
+            publicProfile.tweets = profile.tweets;
+        }
+    }
+
 
     return publicProfile;
 }
