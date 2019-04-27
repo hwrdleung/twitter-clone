@@ -1,0 +1,16 @@
+
+.request-btn {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    border: 2px white solid;
+}
+
+.request-btn-container {
+    margin-top: -18%;
+}
+
+.request-btn .icon-sm {
+    margin: 0 auto;
+}
+

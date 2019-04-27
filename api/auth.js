@@ -6,8 +6,9 @@ const ServerResponse = require('./serverResponse');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
+const verifyToken = require('./verifyToken');
 
-router.post('/login', (req, res) => {
+router.post('/logIn', (req, res) => {
     // Authentication with bcrypt via username or email address
     // On success: return userData
     let body = req.body;
@@ -34,16 +35,38 @@ router.post('/login', (req, res) => {
         if (!isValid) {
             res.json(new ServerResponse(false, 'Log in unsuccessful.  Invalid password.'));
             throw ('Log in unsuccessful.  Invalid password.');
-        } else {
-            let body = {
-                user: user,
-                token: jwt.sign({ _id: user._id }, JWT_SECRET)
-            }
+        } 
 
-            console.log('Registration successful.  Returning user data and JWT to client.')
-            res.json(new ServerResponse(true, 'Registraion successful', body));
+        user.isLoggedIn = true;
+        return user.save();
+    }).then(user => {
+
+        let body = {
+            user: user,
+            token: jwt.sign({ _id: user._id }, JWT_SECRET)
         }
+
+        console.log('Log in successful.  Returning user data and JWT to client.')
+        res.json(new ServerResponse(true, 'Log in successful', body));
     }).catch(error => console.log(error));
+});
+
+router.post('/logout', verifyToken, (req, res) => {
+    User.findOne({_id:req._id}).then(user => {
+        if(!user){
+            res.json(new ServerResponse(false, 'User not found'));
+            throw('User not found');
+        }
+
+        user.isLoggedIn = false;
+        return user.save();
+    }).then(user => {
+        if(!user) {
+            res.json(new ServerResponse(false, 'System error: user.isLoggedIn has not been updated to false.'));
+        } else {
+            res.json(new ServerResponse(true, 'Log out successful.'));
+        }
+    })
 });
 
 router.post('/register', (req, res) => {
@@ -75,7 +98,7 @@ router.post('/register', (req, res) => {
         console.log('Creating new user account.')
 
         let newUser = new User({
-            isLoggedIn: false,
+            isLoggedIn: true,
             dateJoined: new Date(),
             firstName: capitalize(body.firstName),
             lastName: capitalize(body.lastName),
@@ -91,17 +114,22 @@ router.post('/register', (req, res) => {
             tweets: [],
             followers: [],
             following: [],
+            incomingFollowRequests: [],
+            outgoingFollowRequests: [],
+            messages: [],
             settings: {
                 displayEmail: true,
                 displayLocation: true,
                 displayBirthday: true,
-                isPrivate: false
+                isPrivate: false,
+                autoAcceptFollowRequests: false
             },
             stats : {
                 tweets: 0,
                 following: 0,
                 followers: 0,
-                likes: 0
+                likes: 0,
+                messages: 0
             }
         })
 

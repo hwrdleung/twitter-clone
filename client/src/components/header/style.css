@@ -1,13 +1,34 @@
 #splash-container {
-    max-height: 50vh;
-    overflow: hidden;
+    height: 40vh;
+    width: 100vw;
+    background-size: cover;
+    background-repeat : no-repeat;
+    background-position: center center;
 }
 
-.stat-box {
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 0 1rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+.header-btn:hover {
+    cursor: pointer;
+    background: rgb(238, 238, 238);
 }
+
+@media screen and (max-width: 400px){
+    #tab-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        z-index: 100;
+        justify-content: space-evenly !important;
+    }
+
+    #tab-container ul {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    #tab-container p {
+        font-size: 0.75rem;
+    }
+}
+
+

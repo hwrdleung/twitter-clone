@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { Route, Switch, BrowserRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { action } from './state/actions/action';
+import { getUserData, getProfileData } from './state/actions/action';
 import NavBar from './components/nav-bar/navBar';
 import HomePage from './components/home-page/homePage';
 import DashboardPage from './components/dashboard-page/dashboardPage';
@@ -11,39 +11,45 @@ import ErrorPage from './components/error-page/errorPage';
 import './App.css';
 import RegistrationPage from './components/registration-page/registrationPage';
 import LoginPage from './components/login-page/loginPage';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faHeart as fasHeart, faReply, faCommentDots, faDove, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons'
+
+library.add(fasHeart, farHeart, faReply, faCommentDots, faDove, faTimes, faCheck);
 
 const mapStateToProps = state => ({
   ...state
 });
 
 const mapDispatchToProps = dispatch => ({
-  action: () => dispatch(action()),
+  getUserData: (token) => dispatch(getUserData(token)),
+  getProfileData: (username) => dispatch(getProfileData(username))
 });
 
 class App extends Component {
+  componentWillMount() {
+    this.detectBrowserSession();
+  }
+
+  detectBrowserSession = () => {
+    let token = sessionStorage.getItem('twitterCloneToken');
+    if (token) this.props.getUserData(token);
+  }
+
   render() {
     return (
-      <div>
-        <BrowserRouter>
-          <NavBar data={this.props.user} />
-          {/* <button onClick={this.props.action}>Test redux action</button>
-          <button onClick={this.axiosTest}>axios test</button>
-          <pre>
-            {
-              JSON.stringify(this.props)
-            }
-          </pre> */}
-          <Switch>
-            <Route path="/" component={HomePage} exact />
-            <Route path="/dashboard" component={DashboardPage} />
-            <Route path="/profile/:username" component={PublicPage} />
-            <Route path="/settings" component={SettingsPage} />
-            <Route path="/login" component={LoginPage} />
-            <Route path="/registration" component={RegistrationPage} />
-            <Route component={ErrorPage} />
-          </Switch>
-        </BrowserRouter>
-      </div>
+      <BrowserRouter>
+        <NavBar data={this.props.user} />
+        <Switch>
+          <Route path="/" component={HomePage} exact />
+          <Route path="/dashboard" component={DashboardPage} />
+          <Route path="/profile/:username" component={PublicPage} />
+          <Route path="/settings" component={SettingsPage} />
+          <Route path="/login" component={LoginPage} />
+          <Route path="/registration" component={RegistrationPage} />
+          <Route component={ErrorPage} />
+        </Switch>
+      </BrowserRouter>
     );
   }
 }

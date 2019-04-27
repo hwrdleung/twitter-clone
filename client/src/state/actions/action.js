@@ -1,60 +1,81 @@
 import axios from 'axios';
 
-export const action = (str) => dispatch => {
-    dispatch({
-        type: 'SIMPLE_ACTION',
-        payload: str
-    })
+export const setCurrentView = (view, isUser) => dispatch => {
+    if(isUser){
+        dispatch({
+            type: 'SET_USER_CURRENT_VIEW',
+            payload: view
+        })
+    } else {
+        dispatch({
+            type: 'SET_PROFILE_CURRENT_VIEW',
+            payload: view
+        })
+    }
 }
 
 export const login = (data) => dispatch => {
     return new Promise((resolve, reject) => {
-        axios.post('api/auth/login', data).then(res => {
+        axios.post('/api/auth/login', data).then(res => {
             if (res.data.success) {
                 sessionStorage.setItem('twitterCloneToken', res.data.body.token)
                 dispatch({
                     type: 'UPDATE_USER_STATE',
                     payload: res.data.body.user
                 })
-                resolve(res.data);
             }
+            resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
 
-export const logout = (data) => dispatch => {
-    dispatch({
-        type: 'CLEAR_USER_STATE'
-    })
+export const logout = (token) => dispatch => {
+    console.log('logging out')
+    let headers = {
+        'x-auth-token': token
+    }
+
+    return new Promise((resolve, reject) => {
+        axios.post('/api/auth/logout', {}, { headers }).then(res => {
+            console.log(res.data)
+
+            if (res.data.success) {
+                sessionStorage.removeItem('twitterCloneToken')
+                dispatch({
+                    type: 'CLEAR_USER_STATE'
+                })
+            }
+            resolve(res.data);
+        }).catch(error => console.log(error));
+    }).catch(error => console.log(error));
 }
 
 export const register = (data) => dispatch => {
     return new Promise((resolve, reject) => {
-        axios.post('api/auth/register', data).then(res => {
+        axios.post('/api/auth/register', data).then(res => {
+            console.log(res.data);
             if (res.data.success) {
                 sessionStorage.setItem('twitterCloneToken', res.data.body.token)
                 dispatch({
                     type: 'UPDATE_USER_STATE',
                     payload: res.data.body.user
                 })
-                resolve(res.data);
             }
+            resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
 
 export const getProfileData = (username) => dispatch => {
-    console.log(username)
     return new Promise((resolve, reject) => {
-        axios.get('../api/public/' + username).then(res => {
-            console.log(res.data);
+        axios.get('/api/public/' + username).then(res => {
             if (res.data.success) {
                 dispatch({
                     type: 'UPDATE_PROFILE_STATE',
                     payload: res.data.body
                 })
-                resolve(res.data);
             }
+            resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
@@ -65,14 +86,14 @@ export const getUserData = (token) => dispatch => {
             'x-auth-token': token
         }
 
-        axios.get('api/user/getUserData', { headers }).then(res => {
+        axios.get('/api/user/getUserData', { headers }).then(res => {
             if (res.data.success) {
                 dispatch({
                     type: 'UPDATE_USER_STATE',
                     payload: res.data.body
                 });
-                resolve(res.data);
             }
+            resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
@@ -80,7 +101,7 @@ export const getUserData = (token) => dispatch => {
 export const updateUserData = (data, token) => dispatch => {
     return new Promise((resolve, reject) => {
         let headers = {
-            'x-auth-headers': token
+            'x-auth-token': token
         }
 
         axios.put('/api/user/updateUserData', data, { headers }).then(res => {
@@ -89,8 +110,8 @@ export const updateUserData = (data, token) => dispatch => {
                     type: 'UPDATE_USER_STATE',
                     payload: res.data.body
                 })
-                resolve(res.data);
             }
+            resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
@@ -98,10 +119,10 @@ export const updateUserData = (data, token) => dispatch => {
 export const changePassword = (data, token) => dispatch => {
     return new Promise((resolve, reject) => {
         let headers = {
-            'x-auth-headers': token
+            'x-auth-token': token
         }
 
-        axios.put('/api/user/updateUserData', data, { headers }).then(res => {
+        axios.put('/api/user/changePassword', data, { headers }).then(res => {
             resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
@@ -110,7 +131,7 @@ export const changePassword = (data, token) => dispatch => {
 export const getFeed = (token) => dispatch => {
     return new Promise((resolve, reject) => {
         let headers = {
-            'x-auth-headers': token
+            'x-auth-token': token
         }
 
         axios.get('/api/user/getFeed', { headers }).then(res => {
@@ -119,8 +140,8 @@ export const getFeed = (token) => dispatch => {
                     type: 'UPDATE_USER_FEED',
                     payload: res.data.body
                 })
-                resolve(res.data);
             }
+            resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
@@ -139,8 +160,8 @@ export const tweet = (data, token) => dispatch => {
                     type: 'UPDATE_USER_STATE',
                     payload: res.data.body
                 })
-                resolve(res.data);
             }
+            resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
@@ -158,26 +179,29 @@ export const like = (data, token) => dispatch => {
                     type: 'UPDATE_TWEET',
                     payload: res.data.body
                 })
-                resolve(res.data);
             }
+            resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
 
 export const reply = (data, token) => dispatch => {
-    return new Promise((resolve, reject) => {
-        let headers = {
-            'x-auth-headers': token
-        }
+    console.log('reply action')
+    console.log(token)
+    console.log(data)
+    let headers = {
+        'x-auth-token': token
+    }
 
+    return new Promise((resolve, reject) => {
         axios.post('/api/user/reply', data, { headers }).then(res => {
             if (res.data.success) {
                 dispatch({
-                    type: 'UPDATE_PROFILE_STATE',
+                    type: 'UPDATE_TWEET',
                     payload: res.data.body
                 })
-                resolve(res.data);
             }
+            resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
@@ -185,17 +209,43 @@ export const reply = (data, token) => dispatch => {
 export const follow = (data, token) => dispatch => {
     return new Promise((resolve, reject) => {
         let headers = {
-            'x-auth-headers': token
+            'x-auth-token': token
         }
 
         axios.post('/api/user/follow', data, { headers }).then(res => {
             if (res.data.success) {
                 dispatch({
                     type: 'UPDATE_PROFILE_STATE',
-                    payload: res.data.body
-                })
-                resolve(res.data);
+                    payload: res.data.body.profile
+                });
+
+                dispatch({
+                    type: 'UPDATE_USER_STATE',
+                    payload: res.data.body.user
+                });
             }
+            resolve(res.data);
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
+
+export const followRequestResponse = (data, token) => dispatch => {
+    return new Promise((resolve, reject) => {
+        let headers = {
+            'x-auth-token': token
+        }
+
+        axios.post('/api/user/followRequestResponse', data, { headers }).then(res => {
+            if (res.data.success) {
+                dispatch({
+                    type: 'UPDATE_USER_STATE',
+                    payload: res.data.body
+                })
+            }
+            resolve(res.data);
+        }).catch(error => console.log(error));
+    }).catch(error => console.log(error));
+}
+
+
+

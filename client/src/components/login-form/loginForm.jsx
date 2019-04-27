@@ -17,28 +17,42 @@ class LoginForm extends Component {
   constructor() {
     super();
     this.state = {
-
+      serverRes: {}
     }
   }
 
   formSubmitHandler = (e) => {
     e.preventDefault();
-    console.log(e.target.username.value);
-    console.log(e.target.password.value);
     let data = {
       username: e.target.username.value,
       password: e.target.password.value
     }
 
     this.props.login(data).then(res => {
-      console.log(this.props);
-      if (res.success) this.props.history.push('/dashboard');
+      console.log(res);
+      this.setState({ serverRes: res });
     }).catch(error => console.log(error));
+  }
+
+  renderServerMsg() {
+    if (!this.state.serverRes.message) return null;
+
+    // Set className
+    let className = 'text-center small font-italic';
+
+    if (this.state.serverRes.success) {
+      className += ' text-success';
+    } else if (!this.state.serverRes.success) {
+      className += ' text-danger';
+    }
+
+    return (<p className={className}>*{this.state.serverRes.message}</p>);
   }
 
   render() {
     return (
       <form onSubmit={this.formSubmitHandler} id="login-form" className="form-group m-0 d-flex flex-row flex-wrap justify-content-center align-items-center bg-light">
+        <div className="pt-2">{this.renderServerMsg()}</div>
         <input type="text" className="form-control form-control-sm m-1" placeholder="Username or email" name="username" />
         <input type="password" className="form-control form-control-sm m-1" placeholder="Enter your password" name="password" />
         <input type="submit" className="btn btn-sm btn-primary m-1" value="Log in" />

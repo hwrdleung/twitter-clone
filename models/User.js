@@ -7,14 +7,22 @@ const UserSettingsSchema = new Schema({
     displayLocation: {type: Boolean, required: true },
     displayBirthday: {type: Boolean, required : true},
     isPrivate: {type: Boolean, required: true },
+    autoAcceptFollowRequests: {type: Boolean, required: true }
 },  {_id: false});
 
 const UserStatsSchema = new Schema({
     tweets : {type: Number, required: true},
     followers: {type: Number, required: true},
     following: {type: Number, required: true},
-    likes: { type: Number, required: true}
+    likes: { type: Number, required: true},
+    messages : {type: Number, required: true}
 }, {_id: false})
+
+const MessageSchema = new Schema({
+    from: {type: String, required: true },
+    body: {type: String, required: true },
+    read: {type: Boolean, required: true}
+})
 
 const UserSchema = new Schema({
     isLoggedIn: {type: Boolean, required: true },
@@ -30,9 +38,12 @@ const UserSchema = new Schema({
     bio: { type: String, required: true },
     profileImgUrl: { type: String, required: true },
     splashImgUrl: { type: String, required: true },
+    messages: [MessageSchema],
     tweets: [TweetSchema],
     followers: { type: Array, required: true },
     following: { type: Array, required: true },
+    incomingFollowRequests: {type: Array, required: true},
+    outgoingFollowRequests: {type: Array, required: true},
     settings: {type: UserSettingsSchema, rquired: true},
     stats : { type: UserStatsSchema, required: true}
 },  {_id: true});

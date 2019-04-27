@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const TweetSchema = require('../models/Tweet');
 const Tweet = mongoose.model('Tweet', TweetSchema);
 const getPublicProfile = require('./getPublicProfile');
+const getStats = require('./getStats');
 
 /*  All routes in this file must be secured  */
 
@@ -17,20 +18,27 @@ const getPublicProfile = require('./getPublicProfile');
 */
 
 router.get('/getUserData', verifyToken, (req, res) => {
-    // Returns user data for populating the client's dashboard
+    // Updates stats and returns user data for populating the client's dashboard
     console.log(req._id);
     User.findOne({ _id: req._id }).then(user => {
         if (!user) {
             res.json(new ServerResponse(false, 'User not found.'));
             throw ('User not found.');
+        }
+
+        user.stats = getStats(user);
+        return user.save();
+    }).then(user => {
+        if (!user) {
+            res.json(new ServerResponse(false, 'System error: An error occured while updating user stats.'));
+            throw ('System error: An error occured while updating user stats.');
         } else {
+            // Messages are handled via /getMessages
+            user.messages = null;
             res.json(new ServerResponse(true, `User data for ${user.username}`, user));
         }
-        console.log(user);
     }).catch(error => console.log(error));
 });
-
-
 
 router.put('/updateUserData', verifyToken, (req, res) => {
     let body = req.body;
@@ -58,6 +66,7 @@ router.put('/updateUserData', verifyToken, (req, res) => {
             res.json(new ServerResponse(false, 'Failed to update user data.'));
             throw ('Failed to update user data');
         } else {
+            user.messages = null;
             res.json(new ServerResponse(true, 'User data updated.', user));
         }
     }).catch(error => console.log(error));
@@ -107,13 +116,13 @@ router.get('/getFeed', verifyToken, (req, res) => {
     // Include solution for pagination
 
     // FOr now, just return user's tweets array
-    User.findOne({_id : req._id}).then(user => {
+    User.findOne({ _id: req._id }).then(user => {
         if (!user) {
             res.json(new ServerResponse(false, 'User not found.'));
             throw ('User not found.');
         } else {
             res.json(new ServerResponse(true, 'Returning feed for client', user.tweets));
-        }        
+        }
     }).catch(error => console.log(error));
 });
 
@@ -146,6 +155,7 @@ router.post('/tweet', verifyToken, (req, res) => {
         })
 
         user.tweets.push(newTweet);
+        user.stats = getStats(user);
 
         return user.save();
     }).then(user => {
@@ -153,6 +163,7 @@ router.post('/tweet', verifyToken, (req, res) => {
             res.json(new ServerResponse(false, 'System error: failed to save new tweet.'));
             throw ('System error: failed to save new tweet.');
         } else {
+            user.messages = null;
             res.json(new ServerResponse(true, 'New tweet saved successfully.', user));
         }
     }).catch(error => console.log(error));
@@ -202,6 +213,7 @@ router.post('/like', verifyToken, (req, res) => {
             tweet.likes.push(users[0].username);
         }
 
+        users[1].stats = getStats(users[1]);
         return users[1].save();
     }).then(profile => {
         if (!profile) {
@@ -211,15 +223,21 @@ router.post('/like', verifyToken, (req, res) => {
             let likedTweet; // Respond with the liked tweet
 
             profile.tweets.forEach(tweet => {
-                if(tweet._id.toString() === body.tweetId) likedTweet = tweet
+                if (tweet._id.toString() === body.tweetId) likedTweet = tweet
             })
 
-            res.json(new ServerResponse(true, 'Tweet liked.', likedTweet));
+            let payload = {
+                tweet: likedTweet,
+                profile: profile
+            }
+
+            res.json(new ServerResponse(true, 'Tweet liked.', payload));
         }
     }).catch(error => console.log(error))
 });
 
 router.post('/reply', verifyToken, (req, res) => {
+    console.log('client request to reply to a tweet')
     let body = req.body;
     // Adds user's reply to the tweet's 'replies' array
     // Returns updated data for the tweet owner's public profile
@@ -240,7 +258,7 @@ router.post('/reply', verifyToken, (req, res) => {
         } else if (!users[1]) {
             res.json(new ServerResponse(false, 'Profile not found.'));
             throw ('Profile not found.');
-        } else if (!users[0].following.includes(users[1].username)) {
+        } else if (!users[0].following.includes(users[1].username) && (users[0].username !== users[1].username)) {
             res.json(new ServerResponse(false, 'Only followers of this user can reply to this tweet.'));
             throw ('Only followers of this user can reply to this tweet.');
         }
@@ -249,6 +267,7 @@ router.post('/reply', verifyToken, (req, res) => {
             userId: req._id,
             firstName: users[0].firstName,
             lastName: users[0].lastName,
+            username: users[0].username,
             text: body.text,
             date: new Date(),
             likes: [],
@@ -262,18 +281,102 @@ router.post('/reply', verifyToken, (req, res) => {
 
         tweet.replies.push(replyTweet);
         return users[1].save();
-    }).then(user => {
-        if (!user) {
+    }).then(profile => {
+        if (!profile) {
             res.json(new ServerResponse(false, 'System error: failed to save new tweet reply.'));
             throw ('System error: failed to save new tweet reply.');
         } else {
-            res.json(new ServerResponse(true, 'New tweet reply saved successfully.', user));
+            let repliedTweet; // Respond with the liked tweet
+
+            profile.tweets.forEach(tweet => {
+                if (tweet._id.toString() === body.tweetId) repliedTweet = tweet
+            })
+
+            payload = {
+                tweet: repliedTweet,
+                profile: profile
+            }
+
+            res.json(new ServerResponse(true, 'New tweet reply saved successfully.', payload));
+        }
+    }).catch(error => console.log(error));
+});
+
+router.post('/followRequestResponse', verifyToken, (req, res) => {
+    let body = req.body
+    let serverMessage = '';
+
+    Promise.all([
+        User.findOne({ _id: req._id }),
+        User.findOne({ username: body.username })
+    ]).then(users => {
+        if (!users[0]) {
+            res.json(new ServerResponse(false, 'User not found.'));
+            throw ('User not found.');
+        } else if (!users[1]) {
+            res.json(new ServerResponse(false, 'Profile not found.'));
+            throw ('Profile not found.');
+        }
+
+        switch (body.accept) {
+            case true:
+                // Move users[1].username from users[0].incoming to users[0].followers
+                let index0 = users[0].incomingFollowRequests.indexOf(users[1].username);
+                users[0].incomingFollowRequests.splice(index0, 1);
+                users[0].followers.push(users[1].username);
+
+                // Move users[0].username from users[1].outgoing to users[1].following
+                index0 = users[1].outgoingFollowRequests.indexOf(users[0].username);
+                users[1].outgoingFollowRequests.splice(index0, 1);
+                users[1].following.push(users[0].username);
+                // Update stats
+                users[0].stats = getStats(users[0]);
+                users[1].stats = getStats(users[1]);
+
+                // Set serverMessage
+                serverMessage = `Accepted follow request.`;
+                break;
+            case false:
+                // Remove users[1].username from users[0].incoming
+                let index1 = users[0].incomingFollowRequests.indexOf(users[1].username);
+                users[0].incomingFollowRequests.splice(index1, 1);
+
+                // Remove users[0].username from users[1].outgoing
+                index = users[1].outgoingFollowRequests.indexOf(users[0].username);
+                users[1].outgoingFollowRequests.splice(index1, 1);
+
+                // Add message to users[1].messages
+                users[1].messages.push({
+                    from: 'Admin',
+                    body: `${users[0].username} has denied your follow request.`,
+                    read: false
+                })
+
+                // Set serverMesage
+                serverMessage = `Denied follow request.`;
+                break;
+        }
+
+        // Save and respond with users[0] in the payload
+        return Promise.all([
+            users[0].save(),
+            users[1].save()
+        ])
+    }).then(users => {
+        if (!users[0] || !users[1]) {
+            res.json(new ServerResponse(false, 'System error: Failed to handle follow request.'));
+            throw ('System error: Failed to handle follow request.');
+        } else {
+            users[0].messages = null;
+            res.json(new ServerResponse(true, serverMessage, users[0]));
         }
     }).catch(error => console.log(error));
 });
 
 router.post('/follow', verifyToken, (req, res) => {
+    console.log('client request for follow')
     let body = req.body;
+    let successMessage = '';
     // Toggles the adding/removal of user's screen name to/from the profile's 
     // Returns updated userData
     /*
@@ -294,23 +397,62 @@ router.post('/follow', verifyToken, (req, res) => {
             throw ('Profile not found.');
         }
 
-        //users[0] is requesting to follow users[1]
-        switch (users[1].followers.includes(users[0].username)) {
-            case true:
-                let index = users[1].followers.indexOf(users[0].username);
-                users[1].followers.splice(index, 1);
+        // If profile has turned off auto-accept and user is currently not following profile:
+        if (!users[1].settings.autoAcceptFollowRequests &&
+            !users[1].followers.includes(users[0].username)) {
 
-                // Remove user1 from user0 following
-                index = users[0].following.indexOf(users[1].username);
-                users[0].following.splice(index, 1);
-                break;
-            case false:
-                console.log('adding to followers list')
-                // Add user0 to user1 followers
-                // Add user1 to user0 following
-                users[1].followers.push(users[0].username);
-                users[0].following.push(users[1].username);
-                break;
+            // Toggle follow request
+            switch (users[1].incomingFollowRequests.includes(users[0].username)) {
+                case false:
+                    // Add user[0].username to user[1].incoming
+                    // Add user[1].username to user[0].outgoing
+                    users[1].incomingFollowRequests.push(users[0].username);
+                    users[0].outgoingFollowRequests.push(users[1].username);
+
+                    // Notify users[1] about the incoming request via messages
+                    users[1].messages.push({
+                        from: 'Admin',
+                        body: `@${users[0].username} has requested to follow you!  Accept or deny the request in the "Followers" tab.`,
+                        read: false
+                    })
+
+                    successMessage = `Follow request sent to ${users[1].username}`;
+                    break;
+                case true:
+                    let index = users[1].incomingFollowRequests.indexOf(users[0].username);
+                    users[1].incomingFollowRequests.splice(index, 1);
+
+                    index = users[0].outgoingFollowRequests.indexOf(users[1].username)
+                    users[0].outgoingFollowRequests.splice(index, 1);
+
+                    successMessage = `Cancelled follow request.`;
+                    break;
+            }
+
+        } else {
+            // Toggle add/Remove user from profile.followers
+            switch (users[1].followers.includes(users[0].username)) {
+                case true:
+                    let index = users[1].followers.indexOf(users[0].username);
+                    users[1].followers.splice(index, 1);
+
+                    // Remove user1 from user0 following
+                    index = users[0].following.indexOf(users[1].username);
+                    users[0].following.splice(index, 1);
+                    successMessage = `Removed ${users[0].username} to ${users[1].username}'s followers.`;
+                    break;
+                case false:
+                    console.log('adding to followers list')
+                    // Add user0 to user1 followers
+                    // Add user1 to user0 following
+                    users[1].followers.push(users[0].username);
+                    users[0].following.push(users[1].username);
+                    successMessage = `Added ${users[0].username} to ${users[1].username}'s followers.`;
+                    break;
+            }
+
+            users[0].stats = getStats(users[0]);
+            users[1].stats = getStats(users[1]);
         }
 
         return Promise.all([
@@ -319,21 +461,14 @@ router.post('/follow', verifyToken, (req, res) => {
         ])
     }).then(users => {
         if (!users[0] || !users[1]) {
-            res.json(new ServerResponse(false, 'System error: failed to follow user.'));
-            throw ('System error: failed to follow user.');
+            res.json(new ServerResponse(false, 'System error: Failed to follow user.'));
+            throw ('System error: Failed to follow user.');
         } else {
-            let serverMessage = '';
-
-            switch (users[1].followers.includes(users[0].username)) {
-                case true:
-                    serverMessage = `${users[0].username} is now following ${users[1].username}.`;
-                    break;
-                case false:
-                    serverMessage = `${users[0].username} has unfollowed ${users[1].username}.`;
-                    break;
+            let payload = {
+                user: users[0],
+                profile: getPublicProfile(users[1])
             }
-
-            res.json(new ServerResponse(true, serverMessage, getPublicProfile(users[1])));
+            res.json(new ServerResponse(true, successMessage, payload));
         }
     }).catch(error => console.log(error));
 });

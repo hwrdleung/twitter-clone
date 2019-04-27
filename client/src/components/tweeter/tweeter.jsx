@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { tweet } from '../../state/actions/action';
+import { tweet, reply } from '../../state/actions/action';
 import './style.css';
 
 const mapStateToProps = state => ({
@@ -9,6 +9,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   tweet: (data, token) => dispatch(tweet(data, token)),
+  reply: (data, token) => dispatch(reply(data, token))
 });
 
 class Tweeter extends Component {
@@ -31,16 +32,30 @@ class Tweeter extends Component {
       text: this.state.formValue
     }
 
-    this.props.tweet(data, token).then(res => {
-      if (res.success) this.setState({ formValue: '' })
-    }).catch(error => console.log(error));
+    if (this.props.isReply) {
+      data.profileId = this.props.data.userId;
+      data.tweetId = this.props.data._id;
+
+      this.props.reply(data, token).then(res => {
+        if (res.success) {
+          this.setState({ formValue: '' })
+        }
+      }).catch(error => console.log(error));
+
+    } else if (!this.props.isReply) {
+      this.props.tweet(data, token).then(res => {
+        if (res.success) this.setState({ formValue: '' })
+      }).catch(error => console.log(error));
+    }
   }
 
   render() {
+    let buttonText = this.props.isReply ? 'Reply' : 'Tweet';
+
     return (
-      <form className="tweeter-container container-fluid p-3 mb-3 text-right bg-blue-light border border-light bg-light shadow">
-        <input type="text" className="container mb-2" placeholder={this.state.placeholder} value={this.state.formValue} onChange={this.changeHandler} />
-        <button className="btn btn-primary" onClick={this.formSubmitHandler}>Tweet</button>
+      <form className="text-right">
+        <textarea type="text" className="mb-2 w-100" placeholder={this.state.placeholder} value={this.state.formValue} onChange={this.changeHandler} />
+        <button className="btn btn-primary" onClick={this.formSubmitHandler}>{buttonText}</button>
       </form>
     );
   }

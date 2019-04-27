@@ -1,12 +1,14 @@
-.App {
-  text-align: center;
-}
-
 * {
   /* border: 1px red solid; */
-  outline: none;
+  outline: none !important;
 }
 
+#root {
+  min-height: 100vh;
+  background: rgb(219, 244, 252);
+}
+
+.clickable:hover,
 a:hover {
   cursor: pointer;
 }
@@ -15,15 +17,32 @@ textarea {
   resize: none;
 }
 
-
-.bg-blue-light {
-  background: rgb(219, 244, 252);
-}
-
 .bg-white {
   background: #FFF;
 }
 
-.full-height {
-  height: 100vh;
+.min-h-100{
+  min-height: 100vh;
+}
+
+.text-silver {
+  color: silver;
+  background: transparent;
+}
+
+.icon-sm {
+  font-size: 1.2rem;
+}
+
+.icon-md{
+  font-size: 1.7rem;
+}
+
+.icon-lg{
+  font-size: 4rem;
+}
+
+.fa-icon-link:hover {
+  color: blue;
+  cursor:hover;
 }

@@ -1,7 +1,3 @@
-.tweet-container {
-    max-width: 600px;
-}
-
 .tweet-portrait {
     width: 50px;
     height: 50px;
@@ -20,4 +16,5 @@
 .tweet-body {
     font-size: 1rem;
     text-align: left;
+    word-break:break-word;
 }
