@@ -19,7 +19,9 @@ const UserStatsSchema = new Schema({
 }, {_id: false})
 
 const MessageSchema = new Schema({
+    date: {type: Date, required: true },
     from: {type: String, required: true },
+    subject: {type: String, required: true },
     body: {type: String, required: true },
     read: {type: Boolean, required: true}
 })

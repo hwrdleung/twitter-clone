@@ -347,7 +347,9 @@ router.post('/followRequestResponse', verifyToken, (req, res) => {
 
                 // Add message to users[1].messages
                 users[1].messages.push({
+                    date: new Date(),
                     from: 'Admin',
+                    subject: 'Follow request notification',
                     body: `${users[0].username} has denied your follow request.`,
                     read: false
                 })
@@ -411,7 +413,9 @@ router.post('/follow', verifyToken, (req, res) => {
 
                     // Notify users[1] about the incoming request via messages
                     users[1].messages.push({
+                        date: new Date(),
                         from: 'Admin',
+                        subject: 'Follow request notification',
                         body: `@${users[0].username} has requested to follow you!  Accept or deny the request in the "Followers" tab.`,
                         read: false
                     })
