@@ -6,6 +6,7 @@ const TweetSchema = new Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     username: { type: String, required: true },
+    profileImgUrl: {type: String, required: true},
     text: { type: String, required: true },
     date: { type: Date, required: true },
     likes: { type: Array, required: true },

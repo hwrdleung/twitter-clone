@@ -5,8 +5,20 @@ const getStats = (user) => {
         following: user.following.length,
         tweets: user.tweets.length,
         likes: sumAllLikes(user.tweets),
-        messages : user.messages.length
+        messages : user.messages.length,
+        newFollowRequests: user.incomingFollowRequests.length,
+        newMessages : getNumberOfUnreadMessages(user.messages)
     }
+}
+
+const getNumberOfUnreadMessages = (messages) => {
+    let sum = 0;
+
+    messages.forEach(message => {
+        if(message.read === false) sum++;
+    });
+
+    return sum;
 }
 
 const sumAllLikes = (tweets) => {

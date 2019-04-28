@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 const verifyToken = require('./verifyToken');
+const getStats = require('./getStats');
 
 router.post('/logIn', (req, res) => {
     // Authentication with bcrypt via username or email address
@@ -35,12 +36,13 @@ router.post('/logIn', (req, res) => {
         if (!isValid) {
             res.json(new ServerResponse(false, 'Log in unsuccessful.  Invalid password.'));
             throw ('Log in unsuccessful.  Invalid password.');
-        } 
-
+        }
+        
+        user.stats = getStats(user);
         user.isLoggedIn = true;
         return user.save();
     }).then(user => {
-
+        
         let body = {
             user: user,
             token: jwt.sign({ _id: user._id }, JWT_SECRET)
@@ -129,7 +131,9 @@ router.post('/register', (req, res) => {
                 following: 0,
                 followers: 0,
                 likes: 0,
-                messages: 0
+                messages: 0,
+                newFollowers : 0,
+                newMessages: 0
             }
         })
 

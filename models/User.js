@@ -15,7 +15,9 @@ const UserStatsSchema = new Schema({
     followers: {type: Number, required: true},
     following: {type: Number, required: true},
     likes: { type: Number, required: true},
-    messages : {type: Number, required: true}
+    messages : {type: Number, required: true},
+    newMessages : {type: Number, required: true},
+    newFollowRequests : {type: Number, required: true}
 }, {_id: false})
 
 const MessageSchema = new Schema({
@@ -24,7 +26,7 @@ const MessageSchema = new Schema({
     subject: {type: String, required: true },
     body: {type: String, required: true },
     read: {type: Boolean, required: true}
-})
+}, {_id: true})
 
 const UserSchema = new Schema({
     isLoggedIn: {type: Boolean, required: true },

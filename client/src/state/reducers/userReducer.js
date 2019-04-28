@@ -25,7 +25,7 @@ export default (state = {}, action) => {
     case 'SET_USER_CURRENT_VIEW':
       return { ...state, currentView: action.payload }
     case 'UPDATE_USER_MESSAGES':
-      return { ...state, messages: action.payload }
+      return { ...state, messages: action.payload.messages, stats: action.payload.stats }
     default:
       return state
   }

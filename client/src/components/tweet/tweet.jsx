@@ -7,7 +7,7 @@ import Modal from 'react-bootstrap/Modal';
 import { NavLink, withRouter } from 'react-router-dom';
 import LoginForm from '../login-form/loginForm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { getProfileUrl } from '../../helpers';
+import { getProfileUrl, getFormattedDate } from '../../helpers';
 
 const mapStateToProps = state => ({
   ...state
@@ -168,19 +168,20 @@ class Tweet extends Component {
     }
   }
 
+
   render() {
     return (
       <div className="container-fluid p-2 my-0 text-right bg-light shadow">
         <div className="container d-flex">
           <div>
-            <img src="https://images.pexels.com/photos/2044231/pexels-photo-2044231.jpeg" className="rounded-circle tweet-portrait" />
+            <img src={this.props.data.profileImgUrl} className="rounded-circle tweet-portrait" />
           </div>
 
           <div className="ml-3 my-0 w-100">
             <div className="d-flex flex-wrap tweet-header">
               <p className="font-weight-bold">{this.props.data.firstName}, {this.props.data.lastName}</p>
               <NavLink className="text-secondary" to={getProfileUrl(this.props.data.username)}>@{this.props.data.username}</NavLink>
-              <p className="text-secondary">{this.getFormattedDate(this.props.data.date)}</p>
+              <p className="text-secondary">{getFormattedDate(this.props.data.date)}</p>
             </div>
 
             <p className="tweet-body m-0 pt-2 pb-4">{this.props.data.text}</p>

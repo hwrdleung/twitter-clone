@@ -34,6 +34,7 @@ router.get('/getUserData', verifyToken, (req, res) => {
             throw ('System error: An error occured while updating user stats.');
         } else {
             // Messages are handled via /getMessages
+            console.log(user);
             user.messages = null;
             res.json(new ServerResponse(true, `User data for ${user.username}`, user));
         }
@@ -148,6 +149,7 @@ router.post('/tweet', verifyToken, (req, res) => {
             firstName: user.firstName,
             lastName: user.lastName,
             username: user.username,
+            profileImgUrl: user.profileImgUrl,
             text: body.text,
             date: new Date(),
             likes: [],
@@ -268,6 +270,7 @@ router.post('/reply', verifyToken, (req, res) => {
             firstName: users[0].firstName,
             lastName: users[0].lastName,
             username: users[0].username,
+            profileImgUrl: users[0].profileImgUrl,
             text: body.text,
             date: new Date(),
             likes: [],
@@ -358,6 +361,9 @@ router.post('/followRequestResponse', verifyToken, (req, res) => {
                 serverMessage = `Denied follow request.`;
                 break;
         }
+
+        users[0].stats = getStats(users[0]);
+        users[1].stats = getStats(users[1]);
 
         // Save and respond with users[0] in the payload
         return Promise.all([
@@ -488,26 +494,32 @@ router.post('/messages', verifyToken, (req, res) => {
         returns new message object
     */
     User.findOne({ _id: req._id }).then(user => {
+        console.log(body.messageId)
         switch (body.task) {
             case 'READ':
                 for (let i = 0; i < user.messages.length; i++) {
-                    if (user.messages[i]._id === body.messageId) user.messages[i].read = true;
+                    console.log(typeof user.messages[i]._id)
+                    if (user.messages[i]._id.equals(body.messageId)) user.messages[i].read = true
                 }
                 break;
             case 'DELETE':
                 for (let i = 0; i < user.messages.length; i++) {
-                    if (user.messages[i]._id === body.messageId) user.messages.splice(i, 1);
+                    if (user.messages[i]._id.equals(body.messageId)) user.messages.splice(i, 1);
                 }
                 break;
         }
-
+        user.stats = getStats(user);
         return user.save();
     }).then(user => {
         if (!user) {
             res.json(new ServerResponse(false, 'System error: An error occured while updating user messages.'));
             throw ('System error: An error occured while updating user messages.');
         } else {
-            res.json(new ServerResponse(true, `Returning user's messages.`, user.messages));
+            let payload = {
+                messages: user.messages,
+                stats: user.stats
+            }
+            res.json(new ServerResponse(true, `Returning user's messages.`, payload));
         }
     }).catch(error => console.log(error));
 });
@@ -519,7 +531,11 @@ router.get('/messages', verifyToken, (req, res) => {
             res.json(new ServerResponse(false, 'User not found.'));
             throw ('User not found.');
         } else {
-            res.json(new ServerResponse(true, `Returning user's messages.`, user.messages));
+            let payload = {
+                messages: user.messages,
+                stats : getStats(user)
+            }
+            res.json(new ServerResponse(true, `Returning user's messages.`, payload));
         }
     }).catch(error => console.log(error));
 });

@@ -12,10 +12,10 @@ import './App.css';
 import RegistrationPage from './components/registration-page/registrationPage';
 import LoginPage from './components/login-page/loginPage';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faHeart as fasHeart, faReply, faCommentDots, faDove, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faHeart as fasHeart, faReply, faCommentDots, faDove, faTimes, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons'
 
-library.add(fasHeart, farHeart, faReply, faCommentDots, faDove, faTimes, faCheck);
+library.add(fasHeart, farHeart, faReply, faCommentDots, faDove, faTimes, faCheck, faTrash);
 
 const mapStateToProps = state => ({
   ...state

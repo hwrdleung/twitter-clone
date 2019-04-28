@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const setCurrentView = (view, isUser) => dispatch => {
-    if(isUser){
+    if (isUser) {
         dispatch({
             type: 'SET_USER_CURRENT_VIEW',
             payload: view
@@ -255,9 +255,13 @@ export const getMessages = (token) => dispatch => {
 
         axios.get('/api/user/messages', { headers }).then(res => {
             if (res.data.success) {
+                let payload = {
+                    stats: res.data.body.stats,
+                    messages: res.data.body.messages
+                }
                 dispatch({
                     type: 'UPDATE_USER_MESSAGES',
-                    payload: res.data.body
+                    payload: payload
                 })
             }
             resolve(res.data);
@@ -273,9 +277,13 @@ export const updateMessages = (data, token) => dispatch => {
 
         axios.post('/api/user/messages', data, { headers }).then(res => {
             if (res.data.success) {
+                let payload = {
+                    stats: res.data.body.stats,
+                    messages: res.data.body.messages
+                }
                 dispatch({
                     type: 'UPDATE_USER_MESSAGES',
-                    payload: res.data.body
+                    payload: payload
                 })
             }
             resolve(res.data);

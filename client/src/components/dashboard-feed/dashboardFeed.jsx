@@ -19,8 +19,9 @@ class DashboardFeed extends Component {
 
     return (
       <React.Fragment>
+        <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
+        <h5>Tweets:</h5>
         <div className="shadow mb-3 p-4 bg-light">
-          <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
           <Tweeter />
         </div>
         {this.renderFeed()}

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { setCurrentView, getUserData } from '../../state/actions/action';
+import { Badge } from 'react-bootstrap';
 import './style.css';
 
 const mapStateToProps = state => ({
@@ -30,8 +31,8 @@ class Header extends Component {
   renderMessagesStat = () => {
     if (this.props.isDashboard) {
       return (
-        <ul onClick={this.messagesClickHandler} className={this.getTabClassName()}>
-          <li><p className="my-0 mx-auto">Messages</p></li>
+        <ul onClick={() => this.tabClickHandler('MESSAGES')} className={this.getTabClassName()}>
+          <li><p className="my-0 mx-auto">Messages{this.renderQuantityBadge(this.props.data.stats.newMessages)}</p></li>
           <li className="font-weight-bold">{this.props.user.stats.messages}</li>
         </ul>
       )
@@ -40,6 +41,12 @@ class Header extends Component {
 
   getSplashImgCss = () => {
     return `url(${this.props.data.splashImgUrl})`
+  }
+
+  renderQuantityBadge = (number) => {
+    if (this.props.isDashboard && number > 0) {
+      return <Badge variant="danger">{number}</Badge>
+    }
   }
 
   render() {
@@ -62,7 +69,7 @@ class Header extends Component {
           </ul>
 
           <ul onClick={() => this.tabClickHandler('FOLLOWERS')} className={this.getTabClassName()}>
-            <li><p className="my-0 mx-auto">Followers</p></li>
+            <li><p className="my-0 mx-auto">Followers{this.renderQuantityBadge(this.props.data.stats.newFollowRequests)}</p></li>
             <li className="font-weight-bold">{this.props.data.stats.followers}</li>
           </ul>
 

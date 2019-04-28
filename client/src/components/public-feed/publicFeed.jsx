@@ -28,11 +28,6 @@ class PublicFeed extends Component {
     } else {
       return (<p className="text-center small font-italic my-5 text-secondary">This profile is private.</p>)
     }
-
-  }
-
-  renderTweets() {
-
   }
 
   componentDidMount() {
@@ -42,9 +37,6 @@ class PublicFeed extends Component {
   componentWillReceiveProps(props) {
     console.log(props)
   }
-
-  // <p className="small text-center mx-auto font-italic text-secondary">This profile is private.</p> :
-
 
   render() {
     return (

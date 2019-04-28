@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import { getMessages, updateMessages } from "../../state/actions/action";
 import { connect } from "react-redux";
 import Modal from "react-bootstrap/Modal";
+import { getFormattedDate } from '../../helpers';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import "./style.css";
 
 const mapStateToProps = state => ({
@@ -15,8 +18,12 @@ const mapDispatchToProps = dispatch => ({
 
 class Messages extends Component {
   constructor() {
+    super();
     this.state = {
-      showMessageModal: false      
+      showMessageModal: false,
+      messages: [],
+      currentMessage: {}
+
     };
   }
 
@@ -25,6 +32,8 @@ class Messages extends Component {
       .getMessages(sessionStorage.getItem("twitterCloneToken"))
       .then(res => {
         console.log(res);
+        this.setState({ messages: res.body.messages })
+        console.log(this.state)
       })
       .catch(error => console.log(error));
   }
@@ -41,30 +50,34 @@ class Messages extends Component {
       .updateMessages(data, token)
       .then(res => {
         console.log(res);
+        this.setState({ messages: res.body.messages })
       })
       .catch(error => console.log(error));
   };
 
-  toggleMessageModal = () => {
-    this.setState(state => {
-      showMessageModal: !state.showMessageModal;
-    });
+  toggleMessageModal = (message) => {
+    this.setState(state => ({
+      showMessageModal: !state.showMessageModal,
+      currentMessage: message ? message : {}
+    }));
   };
 
   markRead = message => {
-      if(message.read === false) {
-          let data = {
-            task : 'READ',
-            messageId : message._id
-          }
-
-          this.props.updateMessages(data, token).then(res => {
-              console.log(res);
-          });
+    if (message.read === false) {
+      let data = {
+        task: 'READ',
+        messageId: message._id
       }
+      let token = sessionStorage.getItem('twitterCloneToken');
+
+      this.props.updateMessages(data, token).then(res => {
+        console.log(res);
+        this.setState({ messages: res.body.messages });
+      });
+    }
   }
 
-  renderMessageModal = message => {
+  renderMessageModal = () => {
     return (
       <Modal
         centered
@@ -83,53 +96,77 @@ class Messages extends Component {
               <span aria-hidden="true">&times;</span>
             </button>
           </Modal.Header>
-          <Modal.Body className="p-0 m-0">
-            <p>Date: {message.date}</p>
-            <p>From: {message.from}</p>
-            <p>Subject: {message.subject}</p>
-            <p>{message.body}</p>
+          <Modal.Body className="p-3 m-0">
+            <p className="my-0"><span className="font-weight-bold">Date:</span> {getFormattedDate(this.state.currentMessage.date)}</p>
+            <p className="my-0"><span className="font-weight-bold">From:</span> {this.state.currentMessage.from}</p>
+            <p className="my-0"><span className="font-weight-bold">Subject:</span> {this.state.currentMessage.subject}</p>
+            <p className="py-3">{this.state.currentMessage.body}</p>
           </Modal.Body>
         </div>
       </Modal>
     );
   };
 
+  getMessageBgColor = (read) => {
+    switch (read) {
+      case true:
+        return { backgroundColor: '#ebebeb' }
+        break;
+      case false:
+        return { backgroundColor: 'none' }
+        break;
+    }
+  }
+
   renderMessages = () => {
-    return (
-      <React.Fragment>
-        <div className="d-flex flex-row justify-centent-start">
-          <p>Date</p>
-          <p>Sender</p>
-          <p>Subject</p>
-          <p>Sender</p>
+    if (this.state.messages.length === 0) {
+      return <p>You have no messages.</p>
+    } else {
+      return (
+        <div id="messages-container">
+          {this.state.messages.map(message => (
+            <React.Fragment>
+              <div
+                style={this.getMessageBgColor(message.read)}
+                className="row m-0 p-0 d-flex flex-row justify-content-start align-items-center"
+                onClick={() => {
+                  this.toggleMessageModal(message);
+                  this.markRead(message)
+                }}
+              >
+                <p className="col-sm-3 m-0 px-2 py-1 small">{getFormattedDate(message.date)}</p>
+                <p className="col-sm-3 m-0 p-1">{message.from}</p>
+                <p className="col-sm-5 m-0 p-1">{message.subject}</p>
+
+                <FontAwesomeIcon icon={['fas', 'trash']} onClick={() => this.deleteMessageHandler(message)}
+                  className="col-sm-1 m-0 p-0 clickable trash-icon" />
+              </div>
+
+            </React.Fragment>
+          ))}
         </div>
-        {this.props.user.messages.map(message => (
-          <div
-            className="d-flex flex-row justify-centent-start"
-            onClick={() => {
-                this.renderMessageModal(message); 
-                this.markRead(message)
-            }}
-          >
-            <p>{message.date}</p>
-            <p>{message.from}</p>
-            <p>{message.subject}</p>
-            <p>{message.body}</p>
-            <button
-              onClick={() => this.deleteMessageHandler(message)}
-              className="btn btn-small btn-danger"
-            >
-              Delete
-            </button>
-          </div>
-        ))}
-      </React.Fragment>
-    );
+      );
+    }
   };
 
   render() {
-    return <div>{this.user.isLoggedIn ? 
-        this.renderMessages() : <p>User is not logged in.</p>}</div>;
+    return (
+      <React.Fragment>
+        <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
+        <h5>Messages:</h5>
+        <div className="bg-light shadow">
+          <div className="row row m-0 p-0 d-flex flex-row justify-content-start align-items-center">
+            <p className="col-sm-3 m-0 p-2 font-weight-bold">Date</p>
+            <p className="col-sm-3 m-0 p-2 font-weight-bold">Sender</p>
+            <p className="col-sm-5 m-0 p-2 font-weight-bold">Subject</p>
+            <p className="col-sm-1 m-0 p-2 font-weight-bold"></p>
+          </div>
+
+          {this.renderMessages()}
+        </div>
+        {this.renderMessageModal()}
+      </React.Fragment>
+    )
   }
 }
 
