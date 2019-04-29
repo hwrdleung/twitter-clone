@@ -1,26 +1,3 @@
-import axios from 'axios';
-
-export const getUserCards = (usernames) => {
-    // get user cards from server and return res
-    console.log('getting usercards for ', usernames);
-    return new Promise((resolve, reject) => {
-        if (usernames.length > 0) {
-            let data = {
-                usernames: usernames
-            }
-
-            axios.put('/api/public/getUserCards', data)
-                .then(res => resolve(res))
-                .catch(error => {
-                    console.log(error);
-                    reject(error);
-                });
-            } else {
-                reject('No usernames specified.');
-            }
-        })
-}
-
 export const alphabetize = (arr) => {
     return arr
 }
@@ -29,7 +6,12 @@ export const getProfileUrl = (username) => {
     return `/profile/${username}`;
 }
 
-export const getFormattedDate = (dateStr) => {
+export const getUsernameFromPath = (path) => {
+    let pathArr = path.split('/')
+    if (pathArr[1] === 'profile') return pathArr[2];
+}
+
+export const getFormattedDate = (dateStr, includeTime) => {
     let months = 'January February March April May June July August September October November December'.split(' ');
     let dateObj = new Date(dateStr);
     let month = months[dateObj.getMonth() + 1];
@@ -40,10 +22,18 @@ export const getFormattedDate = (dateStr) => {
     let amPm = 'AM';
 
     if (hours > 11) {
-      amPm = 'PM';
-      hours = hours - 12;
-      hours = hours === 0 ? 12 : hours;
+        amPm = 'PM';
+        hours = hours - 12;
+        hours = hours === 0 ? 12 : hours;
     }
 
-    return `${month} ${date}, ${year} ${hours}:${minutes} ${amPm}`;
-  }
+    let time = `${hours}:${minutes} ${amPm}`;
+
+    return `${month} ${date}, ${year} ${includeTime ? time : ''}`;
+}
+
+export const getBackgroundImgCss = url => {
+    return {
+        backgroundImage: `url(${url})`
+    }
+}

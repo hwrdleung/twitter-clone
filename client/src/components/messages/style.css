@@ -14,3 +14,39 @@
 .trash-icon:hover{
     color: blue;
 }
+
+@media screen and (max-width: 500px){
+    #messages-container-header-bar{
+    display: none !important;
+    }
+
+    .message-row{
+        flex-wrap: wrap !important;
+    }
+
+    .message-from {
+        order: 1 !important;
+        width: 50%;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .message-date {
+        order: 2 !important;
+        text-align: right !important;
+        width: 50%;
+    }
+
+    .message-subject {
+        order: 3 !important;
+        width: 90%;
+    }
+
+    .trash-icon {
+        order: 4 !important;
+        text-align: right !important;
+        margin-left: auto !important;
+        width: 10%;
+    }
+
+}

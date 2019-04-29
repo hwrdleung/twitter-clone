@@ -10,10 +10,6 @@ const mapStateToProps = state => ({
 });
 
 class LoginPage extends Component {
-    componentDidUpdate() {
-        if (this.props.user.isLoggedIn) this.props.history.push('/dashboard')
-    }
-
     render() {
         return (
             <div className="container-fluid min-h-100 d-flex justify-content-center align-items-center">

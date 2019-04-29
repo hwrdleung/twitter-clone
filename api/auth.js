@@ -132,7 +132,7 @@ router.post('/register', (req, res) => {
                 followers: 0,
                 likes: 0,
                 messages: 0,
-                newFollowers : 0,
+                newFollowRequests : 0,
                 newMessages: 0
             }
         })

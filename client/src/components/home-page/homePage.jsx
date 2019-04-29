@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { action, register, getUserData } from '../../state/actions/action';
-import { withRouter } from 'react-router-dom';
+import { withRouter, NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './style.css';
 
@@ -15,10 +15,6 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class HomePage extends Component {
-  componentDidUpdate(){
-    if(this.props.user.isLoggedIn) this.props.history.push('/dashboard')
-  }
-
   render() {
     return (
       <div className="container-fluid" id="home-page-container">
@@ -35,8 +31,8 @@ class HomePage extends Component {
               <FontAwesomeIcon icon={['fas', 'dove']} className="icon-md mb-2 text-primary"/>
               <h2>Connect with friends.</h2>
               <h5 className="mb-5">Sign up for free!</h5>
-              <a href="/registration" className="btn btn-primary my-1 text-light">Sign Up</a>
-              <a href="/login" className="btn btn-primary my-1 text-light">Log in</a>
+              <NavLink to="/registration" className="btn btn-primary my-1 text-light">Sign Up</NavLink>
+              <NavLink to="/login" className="btn btn-primary my-1 text-light">Log in</NavLink>
             </div>
           </div>
         </div>

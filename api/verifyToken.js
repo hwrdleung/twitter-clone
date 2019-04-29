@@ -4,7 +4,6 @@ const ServerResponse = require('./serverResponse');
 
 function verifyToken(req, res, next) {
     const token = req.header('x-auth-token');
-    console.log('token:', token)
     // Check for token
     if (!token)
         return res.json(new ServerResponse(false, 'Authentication failed.  No token.'));

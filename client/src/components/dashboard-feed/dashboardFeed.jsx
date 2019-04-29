@@ -1,22 +1,24 @@
 import React, { Component } from 'react';
 import Tweeter from '../tweeter/tweeter';
 import Tweet from '../tweet/tweet';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './style.css';
 
-class DashboardFeed extends Component {
+const mapStateToProps = state => ({
+  ...state
+});
 
+class DashboardFeed extends Component {
   renderFeed() {
-    let tweets = this.props.data.tweets.slice().reverse()
+    // TODO: SET UP THE /getFeed ENDPOINT IN THE SERVER AND HOOK IT UP TO THIS COMPONENT
+    let tweets = this.props.user.tweets.slice().reverse()
     if (tweets.length) {
       return tweets.map((tweet) => <Tweet isDashboard={true} key={tweet._id} data={tweet} />);
-    } else {
-      return (<p className="text-center small font-italic my-5 text-secondary">You don't have any tweets yet.</p>)
     }
   }
 
   render() {
-
     return (
       <React.Fragment>
         <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
@@ -30,4 +32,4 @@ class DashboardFeed extends Component {
   }
 }
 
-export default DashboardFeed;
+export default connect(mapStateToProps)(DashboardFeed);

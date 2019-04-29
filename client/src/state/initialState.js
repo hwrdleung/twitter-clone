@@ -11,7 +11,14 @@ export const initialProfileState = {
   tweets: [],
   followers: [],
   following: [],
+  followersUserCards: [],
+  followingUserCards:[],
   currentView: 'TWEETS',
+  settings: {
+    displayEmail: false,
+    displayLocation: false,
+    displayBirthday: false
+  },
   stats: {
     tweets: 0,
     followers: 0,
@@ -37,7 +44,13 @@ export const initialUserState = {
   tweets: [],
   followers: [],
   following: [],
-  settings: null,
+  incomingFollowRequests: [],
+  outgoingFollowRequests: [],
+  followersUserCards: [],
+  followingUserCards: [],
+  incomingFollowRequestsUserCards: [],
+  outgoingFollowRequestsUserCards: [],
+  settings: {},
   currentView: 'TWEETS',
   stats: {
     tweets: 0,

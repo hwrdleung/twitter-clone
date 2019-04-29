@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { getMessages, updateMessages } from "../../state/actions/action";
 import { connect } from "react-redux";
-import Modal from "react-bootstrap/Modal";
+import { Modal, Spinner } from "react-bootstrap";
 import { getFormattedDate } from '../../helpers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -22,8 +22,8 @@ class Messages extends Component {
     this.state = {
       showMessageModal: false,
       messages: [],
-      currentMessage: {}
-
+      currentMessage: {},
+      isLoading: true
     };
   }
 
@@ -31,9 +31,7 @@ class Messages extends Component {
     this.props
       .getMessages(sessionStorage.getItem("twitterCloneToken"))
       .then(res => {
-        console.log(res);
-        this.setState({ messages: res.body.messages })
-        console.log(this.state)
+        this.setState({ messages: res.body.messages, isLoading: false })
       })
       .catch(error => console.log(error));
   }
@@ -49,7 +47,6 @@ class Messages extends Component {
     this.props
       .updateMessages(data, token)
       .then(res => {
-        console.log(res);
         this.setState({ messages: res.body.messages })
       })
       .catch(error => console.log(error));
@@ -71,7 +68,6 @@ class Messages extends Component {
       let token = sessionStorage.getItem('twitterCloneToken');
 
       this.props.updateMessages(data, token).then(res => {
-        console.log(res);
         this.setState({ messages: res.body.messages });
       });
     }
@@ -119,8 +115,12 @@ class Messages extends Component {
   }
 
   renderMessages = () => {
+    if (this.state.isLoading) {
+      return <div className="container text-center py-4"><Spinner animation="border" variant="primary" /></div>
+    }
+
     if (this.state.messages.length === 0) {
-      return <p>You have no messages.</p>
+      return <div className="container"><p className="font-italic text-secondary text-center py-4">You have no messages.</p></div>
     } else {
       return (
         <div id="messages-container">
@@ -128,18 +128,18 @@ class Messages extends Component {
             <React.Fragment>
               <div
                 style={this.getMessageBgColor(message.read)}
-                className="row m-0 p-0 d-flex flex-row justify-content-start align-items-center"
+                className="row m-0 p-0 d-flex message-row flex-row flex-nowrap justify-content-start align-items-center"
                 onClick={() => {
                   this.toggleMessageModal(message);
                   this.markRead(message)
                 }}
               >
-                <p className="col-sm-3 m-0 px-2 py-1 small">{getFormattedDate(message.date)}</p>
-                <p className="col-sm-3 m-0 p-1">{message.from}</p>
-                <p className="col-sm-5 m-0 p-1">{message.subject}</p>
+                <p className="col-md-3 m-0 px-2 py-1 small message-date">{getFormattedDate(message.date)}</p>
+                <p className="col-md-3 m-0 p-1 message-from">{message.from}</p>
+                <p className="col-md-5 m-0 p-1 message-subject">{message.subject}</p>
 
                 <FontAwesomeIcon icon={['fas', 'trash']} onClick={() => this.deleteMessageHandler(message)}
-                  className="col-sm-1 m-0 p-0 clickable trash-icon" />
+                  className="col-md-1 mr-2 p-0 clickable trash-icon" />
               </div>
 
             </React.Fragment>
@@ -155,11 +155,10 @@ class Messages extends Component {
         <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
         <h5>Messages:</h5>
         <div className="bg-light shadow">
-          <div className="row row m-0 p-0 d-flex flex-row justify-content-start align-items-center">
-            <p className="col-sm-3 m-0 p-2 font-weight-bold">Date</p>
-            <p className="col-sm-3 m-0 p-2 font-weight-bold">Sender</p>
-            <p className="col-sm-5 m-0 p-2 font-weight-bold">Subject</p>
-            <p className="col-sm-1 m-0 p-2 font-weight-bold"></p>
+          <div id="messages-container-header-bar" className="row row m-0 p-0 d-flex flex-row flex-nowrap justify-content-start align-items-center">
+            <p className="col-md-3 m-0 p-2 font-weight-bold">Date</p>
+            <p className="col-md-3 m-0 p-2 font-weight-bold">Sender</p>
+            <p className="col-md-5 m-0 p-2 font-weight-bold">Subject</p>
           </div>
 
           {this.renderMessages()}

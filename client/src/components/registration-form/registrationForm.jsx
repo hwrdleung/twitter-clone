@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { register } from '../../state/actions/action';
 import { withRouter } from 'react-router-dom';
+import { Spinner } from "react-bootstrap";
 import { isRequired, minLength, passwordsMatch, isValidEmail, isAlphaNumeric, isAlphaOnly } from '../formValidators';
 import './style.css';
 
@@ -17,6 +18,7 @@ class RegistrationForm extends Component {
     constructor() {
         super();
         this.state = {
+            isLoading: false,
             serverRes: {},
             errors: {
                 firstName: '',
@@ -33,7 +35,6 @@ class RegistrationForm extends Component {
     }
 
     formChangeHandler = (e) => {
-        console.log(this.state);
         const name = e.target.name;
         const value = e.target.value;
         this.setState({ [name]: value });
@@ -87,6 +88,9 @@ class RegistrationForm extends Component {
     }
 
     isFormValid() {
+        // TODO: Validate all fields
+
+
         // Check that all fields have values and no error messages
         let keys = Object.keys(this.state.errors);
         let validChecks = [];
@@ -103,12 +107,12 @@ class RegistrationForm extends Component {
             if (validChecks[i] === false) return false;
         }
 
-        console.log('form is valid')
         return true;
     }
 
     formSubmitHandler = (e) => {
         e.preventDefault();
+        this.setState({ isLoading: true })
         if (this.isFormValid()) {
             let data = {
                 firstName: e.target.firstName.value,
@@ -123,21 +127,17 @@ class RegistrationForm extends Component {
             }
 
             this.props.register(data).then(res => {
-                this.setState({ serverRes: res });
+                this.setState({ serverRes: res, isLoading: false });
             }).catch(error => console.log(error));
         }
     }
 
-    componentDidUpdate() {
-        if (this.props.user.isLoggedIn) this.props.history.push('/dashboard')
-    }
-
-    renderValidationMsg() {
+    renderValidationMsg = () => {
         if (!this.state.validationMsg) return null;
         return (<p className="text-center small font-italic text-danger">{this.state.validationMsg}</p>)
     }
 
-    renderServerMsg() {
+    renderServerMsg = () => {
         if (!this.state.serverRes.message) return null;
 
         // Set className
@@ -150,6 +150,19 @@ class RegistrationForm extends Component {
         }
 
         return (<p className={className}>*{this.state.serverRes.message}</p>);
+    }
+
+    renderSubmitBtn = () => {
+        if (this.state.isLoading) {
+            return <div className="text-center"><Spinner
+            variant = "primary"
+            animation="border"
+            size="sm"
+            role="status"
+          /></div>
+        } else {
+            return <input type="submit" className="btn btn-sm btn-primary mx-auto" value="Sign up" />
+        }
     }
 
     render() {
@@ -221,7 +234,7 @@ class RegistrationForm extends Component {
 
                 <div className="form-row">
                     <div className="col text-center">
-                        <input type="submit" className="btn btn-sm btn-primary mx-auto" value="Sign up" />
+                        {this.renderSubmitBtn()}
                     </div>
                 </div>
             </form >

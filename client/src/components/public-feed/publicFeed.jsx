@@ -13,29 +13,22 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class PublicFeed extends Component {
-
   renderFeed() {
-    if (!this.props.data.isPrivate ||
-      this.props.data.username === this.props.user.username ||
-      (this.props.data.isPrivate && this.props.data.followers.includes(this.props.user.username))) {
-      let tweets = this.props.data.tweets;
+    // Server will check if the viewer has access to this profile.
+    // hiddentTweets = true if access is denied.
+    if (this.props.profile.hiddenTweets) {
+      return <div className="container-fluid">
+        <p className="text-center small font-italic my-5 text-secondary">This profile is private.</p></div>
+    } else if (this.props.profile.tweets.length === 0) {
+      return <div className="container-fluid">
+        <p className="text-center small font-italic my-5 text-secondary">{this.props.profile.username} has no tweets.</p></div>
+    } else {
+      let tweets = this.props.profile.tweets;
 
       if (tweets.length) {
-        return tweets.map((tweet) => <Tweet key={tweet._id} data={tweet} />);
-      } else {
-        return (<p className="text-center small font-italic my-5 text-secondary">{this.props.data.username} hasn't posted any tweets.</p>)
+        return tweets.map((tweet) => <Tweet data={tweet} />);
       }
-    } else {
-      return (<p className="text-center small font-italic my-5 text-secondary">This profile is private.</p>)
     }
-  }
-
-  componentDidMount() {
-    console.log(this.props.data)
-  }
-
-  componentWillReceiveProps(props) {
-    console.log(props)
   }
 
   render() {

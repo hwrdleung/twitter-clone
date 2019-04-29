@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { NavLink, withRouter } from 'react-router-dom';
 import LoginForm from '../login-form/loginForm';
-import { logout } from '../../state/actions/action';
+import { logout, setCurrentView } from '../../state/actions/action';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Navbar, Nav } from 'react-bootstrap';
 import './style.css';
 
 const mapStateToProps = state => ({
@@ -13,6 +12,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   logout: (token) => dispatch(logout(token)),
+  setCurrentView: (view, isDashboard) => dispatch(setCurrentView(view, isDashboard))
 });
 
 
@@ -20,9 +20,54 @@ class NavBar extends Component {
   logOutHandler = () => {
     let token = sessionStorage.getItem('twitterCloneToken');
     this.props.logout(token).then(res => {
-      if (res.success) this.props.history.push('/')
+
     }).catch(error => console.log(error));
 
+  }
+
+  componentDidUpdate(prevProps) {
+    this.autoRouteHandler(prevProps);
+  }
+
+  autoRouteHandler = (prevProps) => {
+    // This function handles auto-routing and resetting of views throughout the entire app based on changes to the state.
+    let currentView = this.props.history.location.pathname.split('/')[1];
+    let previousView = prevProps.history.location.pathname.split('/')[1];
+
+    switch (currentView) {
+      case '':
+        // If user logs in, route to dashboard
+        if (!prevProps.user.isLoggedIn && this.props.user.isLoggedIn) this.props.history.push('/dashboard');
+        break;
+
+      case 'login':
+        // If user logs in, route to dashboard
+        if (!prevProps.user.isLoggedIn && this.props.user.isLoggedIn) this.props.history.push('/dashboard');
+        break;
+
+      case 'registration':
+        // If user logs in, route to dashboard
+        if (!prevProps.user.isLoggedIn && this.props.user.isLoggedIn) this.props.history.push('/dashboard');
+        break;
+
+      case 'dashboard':
+        // If user logs out, route to /
+        if (prevProps.user.isLoggedIn && !this.props.user.isLoggedIn) this.props.history.push('/');
+        break;
+
+      case 'profile':
+        // If user logs out, route to /
+        if (prevProps.user.isLoggedIn && !this.props.user.isLoggedIn) this.props.history.push('/');
+
+        // If user goes from one profile to another, reset profile current view to 'tweets'
+        if(previousView === 'profile' && prevProps.profile.username !== this.props.profile.username) this.props.setCurrentView('TWEETS', false)
+        break;
+
+      case 'settings':
+        // If user logs out, route to /
+        if (prevProps.user.isLoggedIn && !this.props.user.isLoggedIn) this.props.history.push('/');
+        break;
+    }
   }
 
   getProfileUrl = () => {
@@ -31,9 +76,13 @@ class NavBar extends Component {
     }
   }
 
+  debug = () => {
+    console.log(this.props)
+  }
+
   render() {
     return (
-      <nav className="navbar navbar-expand-md navbar-light fixed-top bg-light shadow">
+      <nav onClick={this.debug} className="navbar navbar-expand-md navbar-light fixed-top bg-light shadow">
         <NavLink to={this.props.user.isLoggedIn ? '/dashboard' : '/'} className="navbar-brand">
           <FontAwesomeIcon className="fa-icon-link text-silver icon-md" size="1x" icon={['fas', 'dove']} />
         </NavLink>

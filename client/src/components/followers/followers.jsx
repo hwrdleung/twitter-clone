@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import UserCard from '../user-card/userCard';
-import { followRequestResponse, getUserData } from '../../state/actions/action';
+import { followRequestResponse, getUserCards } from '../../state/actions/action';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { getUserCards } from '../../helpers';
+import { Spinner } from "react-bootstrap";
 import './style.css';
 
 const mapStateToProps = state => ({
@@ -11,116 +11,132 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    followRequestResponse: (data, token) => dispatch(followRequestResponse(data, token))
+    followRequestResponse: (data, token) => dispatch(followRequestResponse(data, token)),
+    getUserCards: (usernames, isDashboard, key) => dispatch(getUserCards(usernames, isDashboard, key))
 });
 
 class Followers extends Component {
     constructor() {
         super();
         this.state = {
-            followers: [],
-            followRequests: []
+            isLoading: true
         }
     }
 
     componentWillMount() {
-        this.refreshState();
+        this.refreshUserCards();
     }
 
-    refreshState = (props) => {
-        if(!props) props = this.props;
+    componentDidUpdate(prevProps) {
+        if (this.props.isDashboard) {
+            if (prevProps.user.followers !== this.props.user.followers ||
+                prevProps.user.incomingFollowRequests !== this.props.user.incomingFollowRequests) {
+                this.refreshUserCards();
+            }
+        }
+    }
 
-        this.setState({followRequests: []});
-        this.setState({followers: []});
+    refreshUserCards = () => {
+        this.setState({ isLoading: true })
+        let source = this.props.isDashboard ? this.props.user : this.props.profile;
 
-        if (props.isDashboard) {
-            getUserCards(this.props.user.followers).then(res => {
-                console.log(res)
-                this.setState({ followers: res.data.body });
-            }).catch(error => console.log(error));
+        // Update store with userCards for FOLLOWERS
+        this.props.getUserCards(source.followers, this.props.isDashboard, 'followersUserCards').then(res => {
+            this.setState({ isLoading: false })
+        }).catch(error => console.log(error));
 
-            getUserCards(props.user.incomingFollowRequests).then(res => {
-                console.log(res)
-                this.setState({ followRequests: res.data.body });
-            }).catch(error => console.log(error));
-        } else if (!props.isDashboard) {
-            getUserCards(props.profile.followers).then(res => {
-                console.log(res)
-                this.setState({ followers: res.data.body });
+        // Update store with userCards for INCOMING FOLLOW REQUESTS
+        if (this.props.isDashboard) {
+            this.props.getUserCards(source.incomingFollowRequests, this.props.isDashboard, 'incomingFollowRequestsUserCards').then(res => {
+                this.setState({ isLoading: false })
             }).catch(error => console.log(error));
         }
     }
 
-    handleFollowRequest(username, accept) {
+    handleFollowRequest = (username, accept) => {
         let token = sessionStorage.getItem('twitterCloneToken');
         let data = {
             username: username,
             accept: accept
         }
 
-        this.props.followRequestResponse(data, token).then(res => {
-            this.refreshState();
-        }).catch(error => console.log(error));
+        // Action updates the store, which should update the UI.  No need for any follow up here.
+        this.props.followRequestResponse(data, token).catch(error => console.log(error));
     }
 
-    renderUserCards() {
-        // if isDashboard, then populate state with data from user
-        // if !isDashboard, then populate state with data from profile
+    renderFollowers = () => {
+        if (this.state.isLoading) {
+            return <div className="container text-center py-4"><Spinner animation="border" variant="primary" /></div>
+        }
 
-        if (this.state.followers.length === 0) {
+        let source = this.props.isDashboard ? this.props.user : this.props.profile;
+
+        if (source.followers.length === 0) {
             return (
                 <div className="container-fluid">
-                    <p className="text-center small font-italic my-5 text-secondary">{this.props.isDashboard ? this.props.user.username : this.props.profile.username} has no followers.</p>
+                    <p className="text-center small font-italic my-5 text-secondary">
+                        {source.username} has no followers.</p>
                 </div>
             )
         } else {
-            return this.state.followers.map(userCard => (<UserCard data={userCard} key={'follower' + new Date().toString()} />));
+            return source.followersUserCards.map(userCard =>
+                (<UserCard data={userCard} />)
+            );
         }
     }
 
-    renderFollowRequests() {
-            if (this.state.followRequests.length) {
-                return (
-                    <React.Fragment>
-                        <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
-                        <h5>Follow Requests:</h5>
-                        <div className="d-flex flex-row mb-5">
-                            {this.state.followRequests.map(followRequest => (
-                                <div className="text-center">
-                                    <UserCard data={followRequest} key={'request' + new Date().toString()} />
+    renderFollowRequests = () => {
+        let source = this.props.isDashboard ? this.props.user : this.props.profile;
 
-                                    <div className="request-btn-container">
-                                        <button className="btn btn-success request-btn mx-1 shadow text-center" onClick={() => this.handleFollowRequest(followRequest.username, true)}>
-                                            <FontAwesomeIcon icon={['fas', 'check']} className="text-light" />
-                                        </button>
+        if (this.state.isLoading) return null;
 
-                                        <button className="btn btn-danger request-btn mx-1 shadow text-center" onClick={() => this.handleFollowRequest(followRequest.username, false)}>
-                                            <FontAwesomeIcon icon={['fas', 'times']} className="text-light" />
-                                        </button>
-                                    </div>
+        // Only render follow requests for dashboard component.
+        if (!this.props.isDashboard) {
+            return null
+        } else if (source.incomingFollowRequestsUserCards.length > 0) {
+            return (
+                <React.Fragment>
+                    <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
+                    <h5>Follow Requests:</h5>
+                    <div className="d-flex flex-row mb-5">
+                        {source.incomingFollowRequestsUserCards.map(userCard => (
+                            <div className="text-center">
+                                <UserCard data={userCard} />
+
+                                <div className="request-btn-container">
+                                    <button
+                                        className="btn btn-success request-btn mx-1 shadow text-center"
+                                        onClick={() => this.handleFollowRequest(userCard.username, true)}>
+                                        <FontAwesomeIcon icon={['fas', 'check']} className="text-light" />
+                                    </button>
+
+                                    <button
+                                        className="btn btn-danger request-btn mx-1 shadow text-center"
+                                        onClick={() => this.handleFollowRequest(userCard.username, false)}>
+                                        <FontAwesomeIcon icon={['fas', 'times']} className="text-light" />
+                                    </button>
                                 </div>
-                            ))
-                            }
-                        </div>
-                    </React.Fragment>
-                );
-            }
+                            </div>
+                        ))}
+                    </div>
+                </React.Fragment>
+            );
+        }
     }
 
     render() {
         return (
             <div>
-                {this.props.isDashboard ? this.renderFollowRequests() : null}
+                {this.renderFollowRequests()}
 
                 <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
                 <h5>Followers:</h5>
                 <div className="d-flex flex-row flex-wrap">
-                    {this.renderUserCards()}
+                    {this.renderFollowers()}
                 </div>
             </div>
         )
     }
-
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Followers);

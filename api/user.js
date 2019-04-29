@@ -19,7 +19,6 @@ const getStats = require('./getStats');
 
 router.get('/getUserData', verifyToken, (req, res) => {
     // Updates stats and returns user data for populating the client's dashboard
-    console.log(req._id);
     User.findOne({ _id: req._id }).then(user => {
         if (!user) {
             res.json(new ServerResponse(false, 'User not found.'));
@@ -34,7 +33,6 @@ router.get('/getUserData', verifyToken, (req, res) => {
             throw ('System error: An error occured while updating user stats.');
         } else {
             // Messages are handled via /getMessages
-            console.log(user);
             user.messages = null;
             res.json(new ServerResponse(true, `User data for ${user.username}`, user));
         }
@@ -62,7 +60,6 @@ router.put('/updateUserData', verifyToken, (req, res) => {
 
         return user.save()
     }).then(user => {
-        console.log(user)
         if (!user) {
             res.json(new ServerResponse(false, 'Failed to update user data.'));
             throw ('Failed to update user data');

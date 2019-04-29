@@ -30,14 +30,12 @@ export const login = (data) => dispatch => {
 }
 
 export const logout = (token) => dispatch => {
-    console.log('logging out')
     let headers = {
         'x-auth-token': token
     }
 
     return new Promise((resolve, reject) => {
         axios.post('/api/auth/logout', {}, { headers }).then(res => {
-            console.log(res.data)
 
             if (res.data.success) {
                 sessionStorage.removeItem('twitterCloneToken')
@@ -66,9 +64,12 @@ export const register = (data) => dispatch => {
     }).catch(error => console.log(error));
 }
 
-export const getProfileData = (username) => dispatch => {
+export const getProfileData = (username, token) => dispatch => {
+    let headers = {
+        'x-auth-token': token
+    }
     return new Promise((resolve, reject) => {
-        axios.get('/api/public/' + username).then(res => {
+        axios.get('/api/public/' + username, { headers }).then(res => {
             if (res.data.success) {
                 dispatch({
                     type: 'UPDATE_PROFILE_STATE',
@@ -290,6 +291,53 @@ export const updateMessages = (data, token) => dispatch => {
         }).catch(error => console.log(error));
     }).catch(error => console.log(error));
 }
+
+export const getUserCards = (usernames, isDashboard, key) => dispatch => {
+    // get user cards from server and return res
+    return new Promise((resolve, reject) => {
+        if (usernames.length === 0) {
+            if (isDashboard) {
+                dispatch({
+                    type: 'UPDATE_USER_STATE',
+                    payload: {
+                        [key]: []
+                    }
+                });
+            } else {
+                dispatch({
+                    type: 'UPDATE_PROFILE_STATE',
+                    payload: {
+                        [key]: []
+                    }
+                })
+            }
+            resolve('No Usercards')
+        } else {
+            axios.put('/api/public/getUserCards', { usernames: usernames }).then(res => {
+                if (res.data.success) {
+                    if (isDashboard) {
+                        dispatch({
+                            type: 'UPDATE_USER_STATE',
+                            payload: {
+                                [key]: res.data.body
+                            }
+                        });
+                    } else {
+                        dispatch({
+                            type: 'UPDATE_PROFILE_STATE',
+                            payload: {
+                                [key]: res.data.body
+                            }
+                        })
+                    }
+                }
+                resolve(res);
+            }).catch(error => console.log(error));
+        }
+    });
+
+}
+
 
 
 

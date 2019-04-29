@@ -1,4 +1,5 @@
 function getPublicProfile(profile, user) {
+    // console.log(profile.username, user.username)
     // This function takes in a profile object straight from MongoDB and returns
     // an object that excludes any private information per profile.settings
     let publicProfile = {
@@ -14,22 +15,34 @@ function getPublicProfile(profile, user) {
         stats: profile.stats,
         _id: profile._id,
         bio: profile.bio,
+        hiddenTweets: false,
         email: profile.settings.displayEmail ? profile.email : null,
         city: profile.settings.displayLocation ? profile.city : null,
         state: profile.settings.displayLocation ? profile.state : null,
-        birthday: profile.settings.displayBirthday ? profile.birthday : null
+        birthday: profile.settings.displayBirthday ? profile.birthday : null,
+        settings: profile.settings
     }
 
-    if (!profile.settings.isPrivate) {
-        publicProfile.tweets = profile.tweets;
-    }
 
-    if (user) {
-        if (profile.settings.isPrivate && profile.followers.includes(user.username) || profile.username === user.username) {
+
+    switch (profile.settings.isPrivate) {
+        case true:
+            // If profile is set to private, check the following conditions to ensure that only
+            // followers of this user will get the tweets.
+            if (!user) publicProfile.hiddenTweets = true;
+            if (user) {
+                if (profile.followers.includes(user.username) ||
+                    profile.username === user.username) {
+                    publicProfile.tweets = profile.tweets;
+                } else {
+                    publicProfile.hiddenTweets = true
+                }
+            }
+            break;
+        case false:
             publicProfile.tweets = profile.tweets;
-        }
+            break;
     }
-
 
     return publicProfile;
 }

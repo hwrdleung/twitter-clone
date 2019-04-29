@@ -108,14 +108,7 @@ class Tweet extends Component {
   }
 
   renderTweeter() {
-    console.log(this.props.isDashboard);
-    if (!this.props.isDashboard &&
-      this.props.profile.isPrivate &&
-      !this.props.profile.includes(this.props.user.username)) {
-        return <p>This profile is set to private.</p>
-    } else {
       return <Tweeter isReply={true} data={this.props.data} />
-    }
   }
 
   renderReplyModal() {

@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import axios from 'axios';
 import UserCard from '../user-card/userCard';
-import { followRequestResponse, follow } from '../../state/actions/action';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { getUserCards } from '../../helpers';
+import { getUserCards } from '../../state/actions/action';
 import './style.css';
 
 const mapStateToProps = state => ({
@@ -12,71 +10,70 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    followRequestResponse: (data, token) => dispatch(followRequestResponse(data, token)),
+    getUserCards: (usernames, isDashboard, key) => dispatch(getUserCards(usernames, isDashboard, key))
 });
 
 class Following extends Component {
-    constructor() {
-        super();
-        this.state = {
-            following: [],
-            pendingFollows: []
-        }
-    }
-
     componentWillMount() {
-        this.refreshState();
+        this.refreshUserCards();
     }
 
-    refreshState = (props) => {
-        if (!props) props = this.props;
-
-        this.setState({ pendingFollows: [] });
-        this.setState({ following: [] });
-
-        if (props.isDashboard) {
-            getUserCards(this.props.user.following).then(res => {
-                console.log(res)
-                this.setState({ following: res.data.body });
-            }).catch(error => console.log(error));
-
-            getUserCards(props.user.outgoingFollowRequests).then(res => {
-                console.log(res)
-                this.setState({ pendingFollows: res.data.body });
-            }).catch(error => console.log(error));
-        } else if (!props.isDashboard) {
-            getUserCards(props.profile.following).then(res => {
-                console.log(res)
-                this.setState({ following: res.data.body });
-            }).catch(error => console.log(error));
+    componentDidUpdate(prevProps) {
+        if (this.props.isDashboard) {
+            if (prevProps.user.following !== this.props.user.following ||
+                prevProps.user.outgoingFollowRequests !== this.props.user.outgoingFollowRequests) {
+                this.refreshUserCards();
+            }
         }
     }
 
-    renderUserCards = () => {
-        if (this.state.following.length === 0) {
+    refreshUserCards = () => {
+        let source = this.props.isDashboard ? this.props.user : this.props.profile;
+
+        // Update store with userCards for FOLLOWERS
+        this.props.getUserCards(source.following, this.props.isDashboard, 'followingUserCards')
+            .catch(error => console.log(error));
+
+        // Update store with userCards for INCOMING FOLLOW REQUESTS
+        if (this.props.isDashboard) {
+            this.props.getUserCards(source.outgoingFollowRequests, this.props.isDashboard, 'outgoingFollowRequestsUserCards')
+                .catch(error => console.log(error));
+        } 
+    }
+
+    renderFollows = () => {
+        let source = this.props.isDashboard ? this.props.user : this.props.profile;
+
+        if (source.following.length === 0) {
             return (
                 <div className="container-fluid">
-                    <p className="text-center small font-italic my-5 text-secondary">{this.props.isDashboard ? this.props.user.username : this.props.profile.username} is not following anyone.</p>
+                    <p className="text-center small font-italic my-5 text-secondary">
+                        {source.username} is not following anyone.</p>
                 </div>
             )
         } else {
-            return this.state.following.map(userCard => (<UserCard data={userCard} key={'following' + new Date().toString()} />));
+            return source.followingUserCards.map(userCard =>
+                (<UserCard data={userCard} />));
         }
     }
 
     renderPendingFollows = () => {
-        if (this.state.pendingFollows.length) {
+        let source = this.props.isDashboard ? this.props.user : this.props.profile;
+
+        // Only render pending follows for dashboard component
+        if (!this.props.isDashboard) {
+            return null
+        } else if (source.outgoingFollowRequests.length > 0) {
             return (
                 <React.Fragment>
                     <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
                     <h5>Pending:</h5>
                     <div className="d-flex flex-row mb-5">
-                        {this.state.pendingFollows.map(pendingFollow => (
+                        {source.outgoingFollowRequestsUserCards.map(userCard => (
                             <div className="text-center">
-                                <UserCard data={pendingFollow} key={'request' + new Date().toString()} />
+                                <UserCard data={userCard} />
                             </div>
-                        ))
-                        }
+                        ))}
                     </div>
                 </React.Fragment>
             );
@@ -86,12 +83,12 @@ class Following extends Component {
     render() {
         return (
             <div>
-                {this.props.isDashboard ? this.renderPendingFollows() : null}
+                {this.renderPendingFollows()}
 
                 <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
                 <h5>Following:</h5>
                 <div className="d-flex flex-row flex-wrap">
-                    {this.renderUserCards()}
+                    {this.renderFollows()}
                 </div>
             </div>
         )

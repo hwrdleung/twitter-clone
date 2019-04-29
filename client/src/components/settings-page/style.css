@@ -6,3 +6,7 @@
 #settings-content-container p {
     margin-bottom: 0;
 }
+
+.btn-container > * {
+    width: 9rem;
+}

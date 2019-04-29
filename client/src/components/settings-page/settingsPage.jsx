@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { updateUserData, changePassword } from '../../state/actions/action';
 import { isRequired, isAlphaOnly, isValidEmail, minLength, maxLength, passwordsMatch } from '../formValidators';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Spinner } from "react-bootstrap";
+
 import './style.css';
 
 const mapStateToProps = state => ({
@@ -19,6 +21,8 @@ class SettingsPage extends Component {
   constructor() {
     super();
     this.state = {
+      isProfileFormLoading: false,
+      isPasswordFormLoading: false,
       serverRes: {},
       city: '',
       state: '',
@@ -26,6 +30,12 @@ class SettingsPage extends Component {
       email: '',
       editProfileInfo: false,
       changePassword: false,
+      settings: {
+        displayEmail: false,
+        displayLocation: false,
+        displayBirthday: false,
+        isPrivate: false
+      },
       errors: {
         oldPassword: '',
         newPassword: '',
@@ -51,7 +61,11 @@ class SettingsPage extends Component {
       city: props.user.city,
       state: props.user.state,
       bio: props.user.bio,
-      email: props.user.email
+      email: props.user.email,
+      displayEmail: props.user.settings.displayEmail,
+      displayLocation: props.user.settings.displayLocation,
+      displayBirthday: props.user.settings.displayBirthday,
+      isPrivate: props.user.settings.isPrivate
     }
     this.setState(state)
   }
@@ -67,8 +81,8 @@ class SettingsPage extends Component {
   renderChangePasswordForm() {
     if (this.state.changePassword) {
       return (<form onChange={this.formChangeHandler} onSubmit={this.changePasswordFormSubmitHandler}>
-        <div className="row py-1 pr-3 mt-3 d-flex flex-row justify-content-end">
-          <input type="submit" className="btn btn-sm btn-success ml-1" value="Save New Password" />
+        <div className="btn-container row py-1 pr-3 mt-3 d-flex flex-row justify-content-end">
+          {this.state.isPasswordFormLoading ? this.renderLoader() : <input type="submit" className="btn btn-sm btn-success ml-1" value="Save New Password" />}
           <button className="btn btn-sm btn-danger ml-1" onClick={this.toggleChangePassword}>Cancel</button>
         </div>
 
@@ -95,11 +109,10 @@ class SettingsPage extends Component {
 
   formChangeHandler = (e) => {
     const name = e.target.name;
-    const value = e.target.value;
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     this.setState({ [name]: value });
     this.setState({ [name + 'Touched']: true });
     this.validateField(name, value);
-    console.log(this.state)
   }
 
   isFormValid = (keys) => {
@@ -111,6 +124,7 @@ class SettingsPage extends Component {
   }
 
   editProfileFormSubmitHandler = (e) => {
+    this.setState({isProfileFormLoading:true})
     e.preventDefault();
 
     let data = {
@@ -118,13 +132,19 @@ class SettingsPage extends Component {
       state: e.target.state.value,
       email: e.target.email.value,
       bio: e.target.bio.value,
+      settings: {
+        displayEmail: e.target.displayEmail.checked,
+        displayLocation: e.target.displayLocation.checked,
+        displayBirthday: e.target.displayBirthday.checked,
+        isPrivate: e.target.isPrivate.checked,
+
+      }
     }
 
     if (this.isFormValid(Object.keys(data))) {
-      console.log('is valid.  send to server')
       const token = sessionStorage.getItem('twitterCloneToken');
       this.props.updateUserData(data, token).then(res => {
-        this.setState({ serverRes: res });
+        this.setState({ serverRes: res, isProfileFormLoading: false });
         if (res.success) this.setState({ editProfileInfo: false })
       })
     }
@@ -132,8 +152,7 @@ class SettingsPage extends Component {
 
   changePasswordFormSubmitHandler = (e) => {
     e.preventDefault();
-    console.log(e);
-
+    this.setState({isPasswordFormLoading: true})
     // Back-end only requires these two properties.
     let data = {
       password: e.target.oldPassword.value,
@@ -141,11 +160,9 @@ class SettingsPage extends Component {
     }
 
     if (this.isFormValid(Object.keys(data))) {
-      console.log('is valid.  send to server')
       const token = sessionStorage.getItem('twitterCloneToken');
       this.props.changePassword(data, token).then(res => {
-        console.log(res);
-        this.setState({ serverRes: res });
+        this.setState({ serverRes: res, isPasswordFormLoading:false });
         if (res.success) this.setState({ changePassword: false })
       })
     }
@@ -199,11 +216,10 @@ class SettingsPage extends Component {
     if (this.state.editProfileInfo) {
       return (
         <form onChange={this.formChangeHandler} onSubmit={this.editProfileFormSubmitHandler}>
-          <div className="row py-1 pr-3 mt-3 d-flex flex-row justify-content-end">
-            <input type="submit" className="btn btn-sm btn-success ml-1" value="Save Profile Info" />
+          <div className="btn-container row py-1 pr-3 mt-3 d-flex flex-row justify-content-end">
+            {this.state.isProfileFormLoading ? this.renderLoader() : <input type="submit" className="btn btn-sm btn-success ml-1" value="Save Profile Info" />}
             <button className="btn btn-sm btn-danger ml-1" onClick={this.toggleEditProfileInfo}>Cancel</button>
           </div>
-
 
           <div className="form-row">
             <div className="form-group col-sm-6">
@@ -217,22 +233,39 @@ class SettingsPage extends Component {
               <input type="text" placeholder="State" value={this.state.state} onChange={this.formInputHandler} name="state" className="form-control" />
               <p className="small text-danger font-italic">{this.state.errors.state}</p>
             </div>
+
+            <div className="form-group col-sm-6">
+              <label>Email address:</label>
+              <input type="text" placeholder="Email address" value={this.state.email} onChange={this.formInputHandler} name="email" className="form-control" />
+              <p className="small text-danger font-italic">{this.state.errors.email}</p>
+            </div>
+
+            <div className="form-group col-sm-6">
+              <label>Bio:</label>
+              <input type="text" placeholder="Bio" value={this.state.bio} name="bio" onChange={this.formInputHandler} className="form-control" />
+              <p className="small text-danger font-italic">{this.state.errors.bio}</p>
+            </div>
+
+            <div className="form-group col-sm-12 d-flex flex-row justify-content-between align-items-center">
+              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="displayEmail" value="displayEmail" checked={this.state.displayEmail} onChange={this.formInputHandler}/> Display email</div>
+              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="displayLocation" value="displayLocation" checked={this.state.displayLocation} onChange={this.formInputHandler}/> Display location</div>
+              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="displayBirthday" value="displayBirthday" checked={this.state.displayBirthday} onChange={this.formInputHandler}/> Display birthday</div>
+              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="isPrivate" value="isPrivate" checked={this.state.isPrivate} onChange={this.formInputHandler}/> Private tweets</div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Email address:</label>
-            <input type="text" placeholder="Email address" value={this.state.email} onChange={this.formInputHandler} name="email" className="form-control" />
-            <p className="small text-danger font-italic">{this.state.errors.email}</p>
-          </div>
-
-          <div className="form-group">
-            <label>Bio:</label>
-            <input type="text" placeholder="Bio" value={this.state.bio} name="bio" onChange={this.formInputHandler} className="form-control" />
-            <p className="small text-danger font-italic">{this.state.errors.bio}</p>
-          </div>
         </form>
       )
     }
+  }
+
+  renderLoader = () => {
+    return <div className="text-center"><Spinner
+      variant = "success"
+      animation="border"
+      size="sm"
+      role="status"
+    /></div>
   }
 
   renderServerMsg() {
@@ -255,7 +288,7 @@ class SettingsPage extends Component {
       <div className="container-fluid d-flex py-5 justify-content-center align-items-center">
         <div id="settings-content-container" className="shadow p-4 mt-5 bg-light">
           <div className="pb-3">
-          <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
+            <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
 
             <h1>Account settings</h1>
             <h5>{this.props.user.firstName} {this.props.user.lastName}</h5>
@@ -266,10 +299,10 @@ class SettingsPage extends Component {
 
           {this.state.editProfileInfo ? this.renderEditProfileForm() :
             <div>
-              <div className="row py-1 mt-3">
+              <div className="btn-container row py-1 mt-3">
                 <button className="btn btn-sm btn-primary ml-auto mr-3" onClick={this.toggleEditProfileInfo}>Edit Profile Info</button>
-
               </div>
+
               <p className="py-1"><span className="font-weight-bold">Location:</span>  {this.props.user.city}, {this.props.user.state}</p>
               <p className="py-1"><span className="font-weight-bold">Email address:</span>  {this.props.user.email}</p>
               <p className="py-1"><span className="font-weight-bold">Bio:</span>  {this.props.user.bio}</p>
@@ -277,11 +310,10 @@ class SettingsPage extends Component {
           }
 
           {this.state.changePassword ? this.renderChangePasswordForm() :
-            <div className="row py-1 mt-3">
+            <div className="btn-container row py-1 mt-3">
               <button className="btn btn-sm btn-primary ml-auto mr-3" onClick={this.toggleChangePassword}>Change Password</button>
             </div>
           }
-
         </div>
 
       </div>
