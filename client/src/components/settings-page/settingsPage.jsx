@@ -82,8 +82,8 @@ class SettingsPage extends Component {
     if (this.state.changePassword) {
       return (<form onChange={this.formChangeHandler} onSubmit={this.changePasswordFormSubmitHandler}>
         <div className="btn-container row py-1 pr-3 mt-3 d-flex flex-row justify-content-end">
-          {this.state.isPasswordFormLoading ? this.renderLoader() : <input type="submit" className="btn btn-sm btn-success ml-1" value="Save New Password" />}
-          <button className="btn btn-sm btn-danger ml-1" onClick={this.toggleChangePassword}>Cancel</button>
+          {this.state.isPasswordFormLoading ? this.renderLoader() : <input type="submit" className="btn btn-sm btn-success ml-1 mb-2" value="Save New Password" />}
+          <button className="btn btn-sm btn-danger ml-1 mb-2" onClick={this.toggleChangePassword}>Cancel</button>
         </div>
 
         <div className="form-group">
@@ -217,8 +217,8 @@ class SettingsPage extends Component {
       return (
         <form onChange={this.formChangeHandler} onSubmit={this.editProfileFormSubmitHandler}>
           <div className="btn-container row py-1 pr-3 mt-3 d-flex flex-row justify-content-end">
-            {this.state.isProfileFormLoading ? this.renderLoader() : <input type="submit" className="btn btn-sm btn-success ml-1" value="Save Profile Info" />}
-            <button className="btn btn-sm btn-danger ml-1" onClick={this.toggleEditProfileInfo}>Cancel</button>
+            {this.state.isProfileFormLoading ? this.renderLoader() : <input type="submit" className="btn btn-sm btn-success ml-1 mb-2" value="Save Profile Info" />}
+            <button className="btn btn-sm btn-danger ml-1 mb-2" onClick={this.toggleEditProfileInfo}>Cancel</button>
           </div>
 
           <div className="form-row">
@@ -300,7 +300,7 @@ class SettingsPage extends Component {
           {this.state.editProfileInfo ? this.renderEditProfileForm() :
             <div>
               <div className="btn-container row py-1 mt-3">
-                <button className="btn btn-sm btn-primary ml-auto mr-3" onClick={this.toggleEditProfileInfo}>Edit Profile Info</button>
+                <button className="btn btn-sm btn-primary ml-auto mr-3" onClick={this.toggleEditProfileInfo}>Edit profile</button>
               </div>
 
               <p className="py-1"><span className="font-weight-bold">Location:</span>  {this.props.user.city}, {this.props.user.state}</p>
@@ -311,7 +311,7 @@ class SettingsPage extends Component {
 
           {this.state.changePassword ? this.renderChangePasswordForm() :
             <div className="btn-container row py-1 mt-3">
-              <button className="btn btn-sm btn-primary ml-auto mr-3" onClick={this.toggleChangePassword}>Change Password</button>
+              <button className="btn btn-sm btn-primary ml-auto mr-3" onClick={this.toggleChangePassword}>Change password</button>
             </div>
           }
         </div>

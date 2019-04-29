@@ -139,8 +139,6 @@ router.post('/tweet', verifyToken, (req, res) => {
             throw ('User not found.');
         }
 
-        console.log(user)
-
         let newTweet = new Tweet({
             userId: req._id,
             firstName: user.firstName,
@@ -154,6 +152,38 @@ router.post('/tweet', verifyToken, (req, res) => {
         })
 
         user.tweets.push(newTweet);
+        user.stats = getStats(user);
+
+        return user.save();
+    }).then(user => {
+        if (!user) {
+            res.json(new ServerResponse(false, 'System error: failed to save new tweet.'));
+            throw ('System error: failed to save new tweet.');
+        } else {
+            user.messages = null;
+            res.json(new ServerResponse(true, 'New tweet saved successfully.', user));
+        }
+    }).catch(error => console.log(error));
+});
+
+router.post('/deleteTweet', verifyToken, (req, res) => {
+    let body = req.body;
+    console.log(body)
+    // Saves user's new tweet to database
+    // Returns new userData
+    User.findOne({ _id: req._id }).then(user => {
+        if (!user) {
+            res.json(new ServerResponse(false, 'User not found.'));
+            throw ('User not found.');
+        }
+
+        // Find tweet and splice
+        for(let i = 0; i < user.tweets.length; i++){
+            if(user.tweets[i]._id.equals(body.tweet._id)){
+                user.tweets.splice(i, 1);
+            }
+        }
+
         user.stats = getStats(user);
 
         return user.save();

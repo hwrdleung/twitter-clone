@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { like, reply } from '../../state/actions/action';
+import { like, reply, deleteTweet } from '../../state/actions/action';
 import Tweeter from '../tweeter/tweeter';
 import './style.css';
 import Modal from 'react-bootstrap/Modal';
@@ -15,7 +15,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   like: (data, token) => dispatch(like(data, token)),
-  reply: (data, token) => dispatch(reply(data, token))
+  reply: (data, token) => dispatch(reply(data, token)),
+  deleteTweet: (data, token, isDashboard) => dispatch(deleteTweet(data, token, isDashboard))
 });
 
 
@@ -54,6 +55,17 @@ class Tweet extends Component {
     }
   }
 
+  handleDelete = () => {
+    let token = sessionStorage.getItem('twitterCloneToken');
+    let data = {
+      tweet: this.props.data
+    }
+
+    this.props.deleteTweet(data, token, this.props.isDashboard).then(res => {
+      console.log(res)
+    }).catch(error => console.log(error));
+  }
+
   toggleReplyModal = () => {
     this.setState(oldState => ({ displayReplyModal: !oldState.displayReplyModal }));
   }
@@ -85,7 +97,7 @@ class Tweet extends Component {
     return `${month} ${date}, ${year} ${hours}:${minutes} ${amPm}`;
   }
 
-  renderLoginModal() {
+  renderLoginModal = () => {
     if (this.state.displayLoginModal) {
       return (
         <Modal centered className="px-auto mx-auto" show={this.state.displayLoginModal} onHide={this.toggleLoginModal}>
@@ -107,11 +119,11 @@ class Tweet extends Component {
     }
   }
 
-  renderTweeter() {
-      return <Tweeter isReply={true} data={this.props.data} />
+  renderTweeter = () => {
+    return <Tweeter isReply={true} data={this.props.data} />
   }
 
-  renderReplyModal() {
+  renderReplyModal = () => {
     if (this.state.displayReplyModal) {
       return (
         <Modal.Dialog size="lg">
@@ -127,11 +139,10 @@ class Tweet extends Component {
           </Modal.Body>
         </Modal.Dialog>
       )
-      // return <div>REPLY Modal</div>
     }
   }
 
-  renderRepliesViewer() {
+  renderRepliesViewer = () => {
     if (this.state.viewReplies) {
       let replyFeed = this.props.data.replies.slice().reverse().map(replyTweet => <Tweet key={replyTweet._id} data={replyTweet} isReply="true" />);
 
@@ -153,7 +164,7 @@ class Tweet extends Component {
     }
   }
 
-  getLikeIcon() {
+  renderLikeIcon = () => {
     if (this.props.data.likes.includes(this.props.user.username)) {
       return <FontAwesomeIcon className="fa-icon-link text-silver icon-sm" icon={['fas', 'heart']} onClick={this.handleLike} />;
     } else {
@@ -161,6 +172,14 @@ class Tweet extends Component {
     }
   }
 
+  renderDeleteIcon = () => {
+    if (this.props.user) {
+      if (this.props.data.username === this.props.user.username) {
+        return <a className="d-flex justify-content-center align-items-center">
+          <FontAwesomeIcon className="fa-icon-link text-silver icon-sm" icon={['fas', 'trash']} onClick={this.handleDelete} /></a>;
+      }
+    }
+  }
 
   render() {
     return (
@@ -182,7 +201,7 @@ class Tweet extends Component {
               <div className="d-flex mx-auto p-0 btn-group-sm justify-content-between">
                 <a className="d-flex justify-content-center align-items-center">
                   <p className="my-0 mx-1 p-0 text-silver">{this.props.data.likes.length}</p>
-                  {this.getLikeIcon()}
+                  {this.renderLikeIcon()}
                 </a>
 
                 <a className="d-flex justify-content-center align-items-center">
@@ -193,6 +212,8 @@ class Tweet extends Component {
                 <a className="d-flex justify-content-center align-items-center">
                   <FontAwesomeIcon className="fa-icon-link text-silver icon-sm" icon={['fas', 'reply']} onClick={this.handleReply} />
                 </a>
+
+                {this.renderDeleteIcon()}
 
               </div>
             }

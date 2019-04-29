@@ -93,7 +93,7 @@ class Messages extends Component {
             </button>
           </Modal.Header>
           <Modal.Body className="p-3 m-0">
-            <p className="my-0"><span className="font-weight-bold">Date:</span> {getFormattedDate(this.state.currentMessage.date)}</p>
+            <p className="my-0"><span className="font-weight-bold">Date:</span> {getFormattedDate(this.state.currentMessage.date, true)}</p>
             <p className="my-0"><span className="font-weight-bold">From:</span> {this.state.currentMessage.from}</p>
             <p className="my-0"><span className="font-weight-bold">Subject:</span> {this.state.currentMessage.subject}</p>
             <p className="py-3">{this.state.currentMessage.body}</p>
@@ -134,11 +134,11 @@ class Messages extends Component {
                   this.markRead(message)
                 }}
               >
-                <p className="col-md-3 m-0 px-2 py-1 small message-date">{getFormattedDate(message.date)}</p>
+                <p className="col-md-3 m-0 px-2 py-1 small message-date">{getFormattedDate(message.date, true)}</p>
                 <p className="col-md-3 m-0 p-1 message-from">{message.from}</p>
                 <p className="col-md-5 m-0 p-1 message-subject">{message.subject}</p>
 
-                <FontAwesomeIcon icon={['fas', 'trash']} onClick={() => this.deleteMessageHandler(message)}
+                <FontAwesomeIcon icon={['fas', 'trash']} onClick={(e) => {e.stopPropagation(); this.deleteMessageHandler(message)}}
                   className="col-md-1 mr-2 p-0 clickable trash-icon" />
               </div>
 

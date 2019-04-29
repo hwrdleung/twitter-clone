@@ -11,7 +11,11 @@
     background: rgb(238, 238, 238);
 }
 
-@media screen and (max-width: 400px){
+#tab-container ul {
+    width: 6rem;
+}
+
+@media screen and (max-width: 500px){
     #tab-container {
         position: fixed;
         bottom: 0;
@@ -19,9 +23,11 @@
         width: 100vw;
         z-index: 100;
         justify-content: space-evenly !important;
+        flex-wrap: nowrap !important;
     }
 
     #tab-container ul {
+        width: 4rem !important;
         padding-top: 0.5rem !important;
         padding-bottom: 0.5rem !important;
     }

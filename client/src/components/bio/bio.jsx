@@ -34,7 +34,7 @@ class Bio extends Component {
   }
 
   renderChangePhotoBtn = () => {
-    if (this.props.isDashboard) return <button className="btn btn-primary btn-block my-2 ml-auto">Choose a new Photo</button>
+    if (this.props.isDashboard) return <button className="btn btn-primary my-2 mx-0">Change photo</button>
   }
 
   render() {
@@ -44,7 +44,7 @@ class Bio extends Component {
           <img className="img-thumbnail" src={this.props.data.profileImgUrl} />
         </div>
 
-        <div>
+        <div id="bio-text-container">
           {this.renderName()}
           {this.renderUsername()}
           {this.renderEmail()}

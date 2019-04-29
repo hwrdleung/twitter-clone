@@ -148,19 +148,41 @@ export const getFeed = (token) => dispatch => {
 }
 
 export const tweet = (data, token) => dispatch => {
-    console.log(token)
     return new Promise((resolve, reject) => {
         let headers = {
             'x-auth-token': token
         }
-        console.log('making post request to server')
         axios.post('/api/user/tweet', data, { headers }).then(res => {
-            console.log(res.data)
             if (res.data.success) {
                 dispatch({
                     type: 'UPDATE_USER_STATE',
                     payload: res.data.body
                 })
+            }
+            resolve(res.data);
+        }).catch(error => console.log(error));
+    }).catch(error => console.log(error));
+}
+
+export const deleteTweet = (data, token, isDashboard) => dispatch => {
+    return new Promise((resolve, reject) => {
+        let headers = {
+            'x-auth-token': token
+        }
+        console.log('making post request to server')
+        axios.post('/api/user/deleteTweet', data, { headers }).then(res => {
+            if (res.data.success) {
+                if (isDashboard) {
+                    dispatch({
+                        type: 'UPDATE_USER_STATE',
+                        payload: res.data.body
+                    })
+                } else {
+                    dispatch({
+                        type: 'UPDATE_PROFILE_STATE',
+                        payload: res.data.body
+                    })
+                }
             }
             resolve(res.data);
         }).catch(error => console.log(error));

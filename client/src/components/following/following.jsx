@@ -38,7 +38,7 @@ class Following extends Component {
         if (this.props.isDashboard) {
             this.props.getUserCards(source.outgoingFollowRequests, this.props.isDashboard, 'outgoingFollowRequestsUserCards')
                 .catch(error => console.log(error));
-        } 
+        }
     }
 
     renderFollows = () => {
@@ -52,8 +52,10 @@ class Following extends Component {
                 </div>
             )
         } else {
-            return source.followingUserCards.map(userCard =>
-                (<UserCard data={userCard} />));
+            return <div className="d-flex flex-row flex-wrap mb-5 user-cards-container">
+                {source.followingUserCards.map(userCard =>
+                    (<UserCard data={userCard} />))}
+            </div>
         }
     }
 
@@ -68,11 +70,9 @@ class Following extends Component {
                 <React.Fragment>
                     <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
                     <h5>Pending:</h5>
-                    <div className="d-flex flex-row mb-5">
+                    <div className="d-flex flex-row flex-wrap mb-5 user-cards-container">
                         {source.outgoingFollowRequestsUserCards.map(userCard => (
-                            <div className="text-center">
-                                <UserCard data={userCard} />
-                            </div>
+                            <UserCard data={userCard} />
                         ))}
                     </div>
                 </React.Fragment>

@@ -102,7 +102,7 @@ class PublicPage extends Component {
   }
 
   renderLoader = () => {
-    return <div className="text-center"><Spinner
+    return <div className="text-center my-5 py-5"><Spinner
     variant = "primary"
     animation="border"
     size="sm"
@@ -121,7 +121,7 @@ class PublicPage extends Component {
         {this.props.profile.username === null ? this.renderLoader() :
           <div className="container py-5">
             <div className="row">
-              <div className="col-sm-3 mb-2 mr-2">
+              <div className="col-sm-3 mb-5 mr-2">
                 <Bio data={this.props.profile} />
                 {this.renderFollowBtn()}
               </div>
