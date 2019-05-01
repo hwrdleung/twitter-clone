@@ -7,7 +7,7 @@ import Modal from 'react-bootstrap/Modal';
 import { NavLink, withRouter } from 'react-router-dom';
 import LoginForm from '../login-form/loginForm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { getProfileUrl, getFormattedDate } from '../../helpers';
+import { getProfileUrl, getFormattedDate, getBackgroundImgCss } from '../../helpers';
 
 const mapStateToProps = state => ({
   ...state
@@ -166,52 +166,63 @@ class Tweet extends Component {
 
   renderLikeIcon = () => {
     if (this.props.data.likes.includes(this.props.user.username)) {
-      return <FontAwesomeIcon className="fa-icon-link text-silver icon-sm" icon={['fas', 'heart']} onClick={this.handleLike} />;
+      return <FontAwesomeIcon className="fa-icon-link text-silver icon-sm clickable" icon={['fas', 'heart']} onClick={this.handleLike} />;
     } else {
-      return <FontAwesomeIcon className="fa-icon-link text-silver icon-sm" icon={['far', 'heart']} onClick={this.handleLike} />;
+      return <FontAwesomeIcon className="fa-icon-link text-silver icon-sm clickable" icon={['far', 'heart']} onClick={this.handleLike} />;
     }
   }
 
   renderDeleteIcon = () => {
     if (this.props.user) {
       if (this.props.data.username === this.props.user.username) {
-        return <a className="d-flex justify-content-center align-items-center">
-          <FontAwesomeIcon className="fa-icon-link text-silver icon-sm" icon={['fas', 'trash']} onClick={this.handleDelete} /></a>;
+        return <div className="d-flex justify-content-center align-items-center">
+          <FontAwesomeIcon className="fa-icon-link text-silver icon-sm clickable" icon={['fas', 'trash']} onClick={this.handleDelete} /></div>;
       }
     }
+  }
+
+  renderReplyBtn = () => {
+    if (this.props.user.isLoggedIn) {
+      if (this.props.user.following.includes(this.props.data.username) || this.props.user.username === this.props.data.username) {
+        return <div className="d-flex justify-content-center align-items-center">
+          <FontAwesomeIcon className="fa-icon-link text-silver icon-sm clickable" icon={['fas', 'reply']} onClick={this.handleReply} />
+        </div>
+      }
+    }
+
   }
 
   render() {
     return (
       <div className="container-fluid p-2 my-0 text-right bg-light shadow">
         <div className="container d-flex">
-          <div>
-            <img src={this.props.data.profileImgUrl} className="rounded-circle tweet-portrait" />
+          <div className="tweet-portrait-container" style={getBackgroundImgCss(this.props.data.profileImgUrl)}>
+            {/* <img src={this.props.data.profileImgUrl} /> */}
           </div>
 
-          <div className="ml-3 my-0 w-100">
-            <div className="d-flex flex-wrap tweet-header">
-              <p className="font-weight-bold">{this.props.data.firstName}, {this.props.data.lastName}</p>
-              <NavLink className="text-secondary" to={getProfileUrl(this.props.data.username)}>@{this.props.data.username}</NavLink>
+          <div className="ml-3 my-0 flex-grow-1">
+            <div className="d-flex flex-row flex-wrap justify-content-between tweet-header">
+              <div className="d-flex flex-column align-items-start">
+                <p className="font-weight-bold my-0">{this.props.data.firstName}, {this.props.data.lastName}</p>
+                <NavLink className="text-secondary my-0" to={getProfileUrl(this.props.data.username)}>@{this.props.data.username}</NavLink>
+              </div>
               <p className="text-secondary">{getFormattedDate(this.props.data.date)}</p>
             </div>
 
             <p className="tweet-body m-0 pt-2 pb-4">{this.props.data.text}</p>
             {this.props.isReply ? null :
               <div className="d-flex mx-auto p-0 btn-group-sm justify-content-between">
-                <a className="d-flex justify-content-center align-items-center">
+                <div className="d-flex justify-content-center align-items-center">
                   <p className="my-0 mx-1 p-0 text-silver">{this.props.data.likes.length}</p>
                   {this.renderLikeIcon()}
-                </a>
+                </div>
 
-                <a className="d-flex justify-content-center align-items-center">
+                <div className="d-flex justify-content-center align-items-center">
                   <p className="my-0 mx-1 p-0 text-silver">{this.props.data.replies.length}</p>
-                  <FontAwesomeIcon className="fa-icon-link text-silver icon-sm" icon={['fas', 'comment-dots']} onClick={this.toggleViewReplies} />
-                </a>
+                  <FontAwesomeIcon className="fa-icon-link text-silver icon-sm clickable" icon={['fas', 'comment-dots']} onClick={this.toggleViewReplies} />
+                </div>
 
-                <a className="d-flex justify-content-center align-items-center">
-                  <FontAwesomeIcon className="fa-icon-link text-silver icon-sm" icon={['fas', 'reply']} onClick={this.handleReply} />
-                </a>
+                {this.renderReplyBtn()}
 
                 {this.renderDeleteIcon()}
 

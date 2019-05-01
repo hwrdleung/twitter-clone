@@ -4,7 +4,6 @@ export default (state = {}, action) => {
       return { ...state, ...action.payload };
     case 'UPDATE_TWEET':
       // Look for tweet that matches action.payload.tweet and replace 
-      console.log(state);
       let newState = { ...state };
       let tweetIndex = newState.tweets.findIndex(tweet => {
         return tweet._id === action.payload.tweet._id

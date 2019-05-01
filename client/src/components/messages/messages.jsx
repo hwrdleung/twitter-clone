@@ -106,10 +106,10 @@ class Messages extends Component {
   getMessageBgColor = (read) => {
     switch (read) {
       case true:
-        return { backgroundColor: '#ebebeb' }
-        break;
+        return { backgroundColor: '#ebebeb' };
       case false:
-        return { backgroundColor: 'none' }
+        return { backgroundColor: 'none' };
+      default:
         break;
     }
   }
@@ -138,7 +138,7 @@ class Messages extends Component {
                 <p className="col-md-3 m-0 p-1 message-from">{message.from}</p>
                 <p className="col-md-5 m-0 p-1 message-subject">{message.subject}</p>
 
-                <FontAwesomeIcon icon={['fas', 'trash']} onClick={(e) => {e.stopPropagation(); this.deleteMessageHandler(message)}}
+                <FontAwesomeIcon icon={['fas', 'trash']} onClick={(e) => { e.stopPropagation(); this.deleteMessageHandler(message) }}
                   className="col-md-1 mr-2 p-0 clickable trash-icon" />
               </div>
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { tweet, reply } from '../../state/actions/action';
+import { tweet, reply, getFeed } from '../../state/actions/action';
 import { Spinner } from "react-bootstrap";
 import './style.css';
 
@@ -10,7 +10,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   tweet: (data, token) => dispatch(tweet(data, token)),
-  reply: (data, token) => dispatch(reply(data, token))
+  reply: (data, token) => dispatch(reply(data, token)),
+  getFeed: (token) => dispatch(getFeed(token))
 });
 
 class Tweeter extends Component {
@@ -48,7 +49,10 @@ class Tweeter extends Component {
 
       } else if (!this.props.isReply) {
         this.props.tweet(data, token).then(res => {
-          if (res.success) this.setState({ formValue: '', isLoading: false })
+          if (res.success) {
+            this.setState({ formValue: '', isLoading: false });
+            this.props.getFeed(token).catch(error => console.log(error));
+          }
         }).catch(error => console.log(error));
       }
     }

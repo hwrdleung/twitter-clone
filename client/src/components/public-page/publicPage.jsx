@@ -21,7 +21,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class PublicPage extends Component {
-  constructor(){
+  constructor() {
     super();
     this.state = {
       isFollowLoading: false,
@@ -53,7 +53,7 @@ class PublicPage extends Component {
   }
 
   renderFollowBtn = () => {
-    if(this.state.isFollowLoading) return this.renderLoader();
+    if (this.state.isFollowLoading) return this.renderLoader();
 
     let user = this.props.user;
     let profile = this.props.profile;
@@ -76,14 +76,14 @@ class PublicPage extends Component {
   }
 
   handleFollowBtn = () => {
-    this.setState({isFollowLoading: true})
+    this.setState({ isFollowLoading: true })
     let token = sessionStorage.getItem('twitterCloneToken');
     let data = {
       profileId: this.props.profile._id
     }
 
     this.props.follow(data, token).then(res => {
-      this.setState({isFollowLoading:false});
+      this.setState({ isFollowLoading: false });
     }).catch(error => console.log(error));
   }
 
@@ -91,23 +91,22 @@ class PublicPage extends Component {
     switch (this.props.profile.currentView) {
       case 'TWEETS':
         return <PublicFeed />
-        break;
       case 'FOLLOWERS':
         return <Followers isDashboard={false} />
-        break;
       case 'FOLLOWING':
         return <Following isDashboard={false} />
-        break;
+      default:
+        return null;
     }
   }
 
   renderLoader = () => {
     return <div className="text-center my-5 py-5"><Spinner
-    variant = "primary"
-    animation="border"
-    size="sm"
-    role="status"
-  /></div>
+      variant="primary"
+      animation="border"
+      size="sm"
+      role="status"
+    /></div>
   }
 
   render() {

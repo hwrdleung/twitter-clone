@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const TweetSchema = require('../models/Tweet');
 const Tweet = mongoose.model('Tweet', TweetSchema);
 const getPublicProfile = require('./getPublicProfile');
+const generateFeed = require('./generateFeed');
 const getStats = require('./getStats');
 
 /*  All routes in this file must be secured  */
@@ -75,8 +76,6 @@ router.put('/changePassword', verifyToken, (req, res) => {
     let dbUser; // Store user once it is found
     // Updates userData 
     // Returns updated userData
-    console.log(body)
-
     User.findOne({ _id: req._id }).then(user => {
         if (!user) {
             res.json(new ServerResponse(false, 'User not found.'));
@@ -107,26 +106,27 @@ router.put('/changePassword', verifyToken, (req, res) => {
 });
 
 router.get('/getFeed', verifyToken, (req, res) => {
-    // Returns data for populating the client's tweet feed in the dashboard.
-    // Tweet feed should include the most recent tweets from user's 'following' list.  
-    // Ideally, this route would include an algorithm that returns a feed that would include
-    // tweets from the most relevant users.
-    // Include solution for pagination
-
-    // FOr now, just return user's tweets array
     User.findOne({ _id: req._id }).then(user => {
-        if (!user) {
-            res.json(new ServerResponse(false, 'User not found.'));
-            throw ('User not found.');
-        } else {
-            res.json(new ServerResponse(true, 'Returning feed for client', user.tweets));
-        }
-    }).catch(error => console.log(error));
-});
 
-router.post('/uploadPhoto', verifyToken, (req, res) => {
-    // Upload photo to Firebase storage and update image url in MongoDB
-    // Return new userData
+        let queries = [...user.following];
+        queries.unshift(user.username); // Include user's own tweets in the feed
+
+        return User.find({ username: { $in: queries } });
+    }).then(results => {
+        let tweetIndex = 0;
+        let feedMaxLength = 20;
+        let feed = []; // This will be returned to user
+
+        // Get maxTweetIndex
+        let maxTweetIndex = 0;
+        results.forEach(profile => {
+            if (profile.following.length > maxTweetIndex) maxTweetIndex = profile.tweets.length - 1;
+        });
+
+        generateFeed(tweetIndex, maxTweetIndex, results, feed, feedMaxLength);
+        res.json(new ServerResponse(true, 'Returning feed', { feed: feed }));
+
+    }).catch(error => console.log(error));
 });
 
 router.post('/tweet', verifyToken, (req, res) => {
@@ -168,7 +168,6 @@ router.post('/tweet', verifyToken, (req, res) => {
 
 router.post('/deleteTweet', verifyToken, (req, res) => {
     let body = req.body;
-    console.log(body)
     // Saves user's new tweet to database
     // Returns new userData
     User.findOne({ _id: req._id }).then(user => {
@@ -178,8 +177,8 @@ router.post('/deleteTweet', verifyToken, (req, res) => {
         }
 
         // Find tweet and splice
-        for(let i = 0; i < user.tweets.length; i++){
-            if(user.tweets[i]._id.equals(body.tweet._id)){
+        for (let i = 0; i < user.tweets.length; i++) {
+            if (user.tweets[i]._id.equals(body.tweet._id)) {
                 user.tweets.splice(i, 1);
             }
         }
@@ -199,10 +198,10 @@ router.post('/deleteTweet', verifyToken, (req, res) => {
 });
 
 /*
-    The following routes imply interactivity between two users.  The following are required:
-        1.  user1's userData
-        2.  user2's userData
-        3.  user2's tweetData to identify which tweet to modify (for liking and replying to tweets)
+    The following routes handle interactivity between two users.  The following are required:
+        1.  user1's _id
+        2.  user2's _id
+        3.  _id of the tweet to be modified
 */
 
 router.post('/like', verifyToken, (req, res) => {
@@ -479,7 +478,6 @@ router.post('/follow', verifyToken, (req, res) => {
                     successMessage = `Removed ${users[0].username} to ${users[1].username}'s followers.`;
                     break;
                 case false:
-                    console.log('adding to followers list')
                     // Add user0 to user1 followers
                     // Add user1 to user0 following
                     users[1].followers.push(users[0].username);
@@ -521,11 +519,9 @@ router.post('/messages', verifyToken, (req, res) => {
         returns new message object
     */
     User.findOne({ _id: req._id }).then(user => {
-        console.log(body.messageId)
         switch (body.task) {
             case 'READ':
                 for (let i = 0; i < user.messages.length; i++) {
-                    console.log(typeof user.messages[i]._id)
                     if (user.messages[i]._id.equals(body.messageId)) user.messages[i].read = true
                 }
                 break;
@@ -560,7 +556,7 @@ router.get('/messages', verifyToken, (req, res) => {
         } else {
             let payload = {
                 messages: user.messages,
-                stats : getStats(user)
+                stats: getStats(user)
             }
             res.json(new ServerResponse(true, `Returning user's messages.`, payload));
         }

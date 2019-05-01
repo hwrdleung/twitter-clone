@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { register } from '../../state/actions/action';
+import { register, uploadImage } from '../../state/actions/action';
 import { withRouter } from 'react-router-dom';
 import { Spinner } from "react-bootstrap";
 import { isRequired, minLength, passwordsMatch, isValidEmail, isAlphaNumeric, isAlphaOnly } from '../formValidators';
+import { getBase64FromUrl } from '../../helpers';
 import './style.css';
 
 const mapStateToProps = state => ({
@@ -12,6 +13,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
     register: (data) => dispatch(register(data)),
+    uploadImage: (base64, type, token) => dispatch(uploadImage(base64, type, token))
 });
 
 class RegistrationForm extends Component {
@@ -81,15 +83,28 @@ class RegistrationForm extends Component {
             case 'state':
                 this.setErrors('state', [isRequired(name, value), isAlphaOnly(name, value)]);
                 break;
-            case 'birthday':
-
+            default:
                 break;
         }
     }
 
-    isFormValid() {
+    isFormValid(e) {
         // TODO: Validate all fields
+        let data = {
+            firstName: e.target.firstName.value,
+            lastName: e.target.lastName.value,
+            username: e.target.username.value,
+            email: e.target.email.value,
+            password: e.target.password.value,
+            password2: e.target.password2.value,
+            city: e.target.city.value,
+            state: e.target.state.value,
+            birthday: e.target.birthday.value
+        }
 
+        for (let key in data) {
+            this.validateField(key, data[key]);
+        }
 
         // Check that all fields have values and no error messages
         let keys = Object.keys(this.state.errors);
@@ -113,7 +128,11 @@ class RegistrationForm extends Component {
     formSubmitHandler = (e) => {
         e.preventDefault();
         this.setState({ isLoading: true })
-        if (this.isFormValid()) {
+        let isValid = this.isFormValid(e);
+
+        if (!isValid) {
+            this.setState({ isLoading: false });
+        } else if (this.isFormValid(e)) {
             let data = {
                 firstName: e.target.firstName.value,
                 lastName: e.target.lastName.value,
@@ -128,6 +147,25 @@ class RegistrationForm extends Component {
 
             this.props.register(data).then(res => {
                 this.setState({ serverRes: res, isLoading: false });
+                // Set default placeholder images
+                let proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                let profileImgUrl = 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png';
+                let splashImgUrl = 'https://image.freepik.com/free-photo/blue-sky-with-clouds_1112-454.jpg'
+
+                if (res.success) return Promise.all([
+                    // convert to base64
+                    getBase64FromUrl(proxyUrl + profileImgUrl),
+                    getBase64FromUrl(proxyUrl + splashImgUrl)
+                ])
+            }).then(results => {
+                let token = sessionStorage.getItem('twitterCloneToken');
+
+                return Promise.all([
+                    // upload each file as splash and profile
+                    this.props.uploadImage(results[0], 'PROFILE', token),
+                    this.props.uploadImage(results[1], 'SPLASH', token)
+                ])
+            }).then(results => {
             }).catch(error => console.log(error));
         }
     }
@@ -155,11 +193,11 @@ class RegistrationForm extends Component {
     renderSubmitBtn = () => {
         if (this.state.isLoading) {
             return <div className="text-center"><Spinner
-            variant = "primary"
-            animation="border"
-            size="sm"
-            role="status"
-          /></div>
+                variant="primary"
+                animation="border"
+                size="sm"
+                role="status"
+            /></div>
         } else {
             return <input type="submit" className="btn btn-sm btn-primary mx-auto" value="Sign up" />
         }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { updateUserData, changePassword } from '../../state/actions/action';
-import { isRequired, isAlphaOnly, isValidEmail, minLength, maxLength, passwordsMatch } from '../formValidators';
+import { updateUserData, changePassword, deleteAccount } from '../../state/actions/action';
+import { isRequired, isAlphaOnly, isValidEmail, minLength, passwordsMatch } from '../formValidators';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Spinner } from "react-bootstrap";
 
@@ -13,8 +13,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   updateUserData: (data, token) => dispatch(updateUserData(data, token)),
-  changePassword: (data, token) => dispatch(changePassword(data, token))
-
+  changePassword: (data, token) => dispatch(changePassword(data, token)),
+  deleteAccount: (data, token) => dispatch(deleteAccount(data, token)),
 });
 
 class SettingsPage extends Component {
@@ -23,6 +23,7 @@ class SettingsPage extends Component {
     this.state = {
       isProfileFormLoading: false,
       isPasswordFormLoading: false,
+      isDeleteFormLoading: false,
       serverRes: {},
       city: '',
       state: '',
@@ -30,6 +31,8 @@ class SettingsPage extends Component {
       email: '',
       editProfileInfo: false,
       changePassword: false,
+      deleteAccount: false,
+      deleteAccountPassword: '',
       settings: {
         displayEmail: false,
         displayLocation: false,
@@ -78,7 +81,24 @@ class SettingsPage extends Component {
     this.setState(oldState => ({ changePassword: !oldState.changePassword }));
   }
 
-  renderChangePasswordForm() {
+  toggleDeleteAccount = () => {
+    this.setState(oldState => ({ deleteAccount: !oldState.deleteAccount }))
+  }
+
+  renderDeleteAccountForm = () => {
+    return (<form onChange={this.formChangeHandler} onSubmit={this.deleteAccountFormSubmitHandler}>
+      <div className="btn-container row py-1 pr-3 mt-3 d-flex flex-row justify-content-end">
+        {this.state.isPasswordFormLoading ? this.renderLoader() : <input type="submit" className="btn btn-sm btn-success ml-1 mb-2" value="Delete Account" />}
+        <button className="btn btn-sm btn-danger ml-1 mb-2" onClick={this.toggleDeleteAccount}>Cancel</button>
+      </div>
+
+      <p className="text-center">To delete your account, please enter your password:</p>
+      <input onChange={this.formInputHandler} className="form-control" type="password" name="deleteAccountPassword" />
+      <p className="small text-danger font-italic">{this.state.errors.deleteAccountPassword}</p>
+    </form>)
+  }
+
+  renderChangePasswordForm = () => {
     if (this.state.changePassword) {
       return (<form onChange={this.formChangeHandler} onSubmit={this.changePasswordFormSubmitHandler}>
         <div className="btn-container row py-1 pr-3 mt-3 d-flex flex-row justify-content-end">
@@ -116,6 +136,11 @@ class SettingsPage extends Component {
   }
 
   isFormValid = (keys) => {
+
+    keys.forEach(key => {
+      this.validateField(key, this.state[key]);
+    });
+
     for (let i = 0; i < keys.length; i++) {
       if (this.state.errors[keys[i]]) return false;
     }
@@ -123,8 +148,29 @@ class SettingsPage extends Component {
     return true;
   }
 
+  deleteAccountFormSubmitHandler = (e) => {
+    this.setState({ isDeleteFormLoading: true })
+    e.preventDefault();
+
+    if (this.isFormValid(['deleteAccountPassword'])) {
+      const token = sessionStorage.getItem('twitterCloneToken');
+      const data = {
+        password: e.target.deleteAccountPassword.value
+      }
+
+      this.props.deleteAccount(data, token).then(res => {
+        this.setState({ serverRes: res, isDeleteFormLoading: false });
+        if (res.success) {
+          this.setState({ deleteAccount: false })
+          sessionStorage.removeItem('twitterCloneToken');
+        }
+      })
+    }
+
+  }
+
   editProfileFormSubmitHandler = (e) => {
-    this.setState({isProfileFormLoading:true})
+    this.setState({ isProfileFormLoading: true })
     e.preventDefault();
 
     let data = {
@@ -152,7 +198,7 @@ class SettingsPage extends Component {
 
   changePasswordFormSubmitHandler = (e) => {
     e.preventDefault();
-    this.setState({isPasswordFormLoading: true})
+    this.setState({ isPasswordFormLoading: true })
     // Back-end only requires these two properties.
     let data = {
       password: e.target.oldPassword.value,
@@ -162,7 +208,7 @@ class SettingsPage extends Component {
     if (this.isFormValid(Object.keys(data))) {
       const token = sessionStorage.getItem('twitterCloneToken');
       this.props.changePassword(data, token).then(res => {
-        this.setState({ serverRes: res, isPasswordFormLoading:false });
+        this.setState({ serverRes: res, isPasswordFormLoading: false });
         if (res.success) this.setState({ changePassword: false })
       })
     }
@@ -189,8 +235,12 @@ class SettingsPage extends Component {
         this.setErrors('newPassword', [isRequired(name, value), minLength(name, value, 6)]);
         break;
       case 'newPassword2':
-        console.log(this.state.newPassword, value)
         this.setErrors('newPassword2', [isRequired(name, value), passwordsMatch(this.state.newPassword, value)]);
+        break;
+      case 'deleteAccountPassword':
+        this.setErrors('deleteAccountPassword', [isRequired(name, value)]);
+        break;
+      default:
         break;
     }
   }
@@ -247,13 +297,12 @@ class SettingsPage extends Component {
             </div>
 
             <div className="form-group col-sm-12 d-flex flex-row justify-content-between align-items-center">
-              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="displayEmail" value="displayEmail" checked={this.state.displayEmail} onChange={this.formInputHandler}/> Display email</div>
-              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="displayLocation" value="displayLocation" checked={this.state.displayLocation} onChange={this.formInputHandler}/> Display location</div>
-              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="displayBirthday" value="displayBirthday" checked={this.state.displayBirthday} onChange={this.formInputHandler}/> Display birthday</div>
-              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="isPrivate" value="isPrivate" checked={this.state.isPrivate} onChange={this.formInputHandler}/> Private tweets</div>
+              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="displayEmail" value="displayEmail" checked={this.state.displayEmail} onChange={this.formInputHandler} /> Display email</div>
+              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="displayLocation" value="displayLocation" checked={this.state.displayLocation} onChange={this.formInputHandler} /> Display location</div>
+              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="displayBirthday" value="displayBirthday" checked={this.state.displayBirthday} onChange={this.formInputHandler} /> Display birthday</div>
+              <div className="d-flex flex-wrap flex-row justify-content-center align-items-center text-center px-2"><input type="checkbox" name="isPrivate" value="isPrivate" checked={this.state.isPrivate} onChange={this.formInputHandler} /> Private tweets</div>
             </div>
           </div>
-
         </form>
       )
     }
@@ -261,7 +310,7 @@ class SettingsPage extends Component {
 
   renderLoader = () => {
     return <div className="text-center"><Spinner
-      variant = "success"
+      variant="success"
       animation="border"
       size="sm"
       role="status"
@@ -297,25 +346,33 @@ class SettingsPage extends Component {
 
           <div>{this.renderServerMsg()}</div>
 
-          {this.state.editProfileInfo ? this.renderEditProfileForm() :
-            <div>
-              <div className="btn-container row py-1 mt-3">
-                <button className="btn btn-sm btn-primary ml-auto mr-3" onClick={this.toggleEditProfileInfo}>Edit profile</button>
-              </div>
+          {
+            this.state.editProfileInfo ? this.renderEditProfileForm() :
+              <div>
+                <div className="btn-container row py-1 mt-3">
+                  <button className="btn btn-sm btn-primary ml-auto mr-3" onClick={this.toggleEditProfileInfo}>Edit profile</button>
+                </div>
 
-              <p className="py-1"><span className="font-weight-bold">Location:</span>  {this.props.user.city}, {this.props.user.state}</p>
-              <p className="py-1"><span className="font-weight-bold">Email address:</span>  {this.props.user.email}</p>
-              <p className="py-1"><span className="font-weight-bold">Bio:</span>  {this.props.user.bio}</p>
-            </div>
+                <p className="py-1"><span className="font-weight-bold">Location:</span>  {this.props.user.city}, {this.props.user.state}</p>
+                <p className="py-1"><span className="font-weight-bold">Email address:</span>  {this.props.user.email}</p>
+                <p className="py-1"><span className="font-weight-bold">Bio:</span>  {this.props.user.bio}</p>
+              </div>
           }
 
-          {this.state.changePassword ? this.renderChangePasswordForm() :
-            <div className="btn-container row py-1 mt-3">
-              <button className="btn btn-sm btn-primary ml-auto mr-3" onClick={this.toggleChangePassword}>Change password</button>
-            </div>
+          {
+            this.state.changePassword ? this.renderChangePasswordForm() :
+              <div className="btn-container row py-1 mt-3">
+                <button className="btn btn-sm btn-primary ml-auto mr-3" onClick={this.toggleChangePassword}>Change password</button>
+              </div>
+          }
+
+          {
+            this.state.deleteAccount ? this.renderDeleteAccountForm() :
+              <div className="btn-container row py-1 mt-3">
+                <button className="btn btn-sm btn-danger ml-auto mr-3" onClick={this.toggleDeleteAccount}>Delete Account</button>
+              </div>
           }
         </div>
-
       </div>
     );
   }

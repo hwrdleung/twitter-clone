@@ -28,7 +28,6 @@ router.post('/logIn', (req, res) => {
         } else {
             if (results[0]) user = results[0];
             if (results[1]) user = results[1];
-            console.log('User found. ', user)
         }
 
         return bcrypt.compareSync(body.password, user.password);
@@ -165,6 +164,24 @@ function capitalize(str) {
 
     return finalStr.join(' ');
 }
+
+router.post('/deleteAccount', verifyToken, (req, res) => {
+    let storage;
+
+    User.findOne({_id: req._id}).then(user => {
+        storage = user;
+        return bcrypt.compareSync(req.body.password, user.password);
+    }).then(isValid => {
+        if(!isValid) {
+            res.json(new ServerResponse(false, 'Invalid password.'));
+            throw('Invalid password.');
+        } else if(isValid) {
+            return User.findOneAndRemove({username: storage.username});
+        }
+    }).then(() => {
+        res.json(new ServerResponse(true, 'User account has been deleted.'));
+    }).catch(error => console.log(error));
+});
 
 
 module.exports = router;

@@ -49,7 +49,6 @@ textarea {
 
 @media screen and (max-width: 400px) {
   .user-cards-container {
-      width: 100vw !important;
       justify-content: space-evenly !important;
       align-items: flex-start !important;
   }

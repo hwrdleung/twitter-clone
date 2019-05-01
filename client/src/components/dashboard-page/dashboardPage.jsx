@@ -28,16 +28,14 @@ class DashboardPage extends Component {
     switch (this.props.user.currentView) {
       case 'TWEETS':
         return <DashboardFeed />
-        break;
       case 'FOLLOWERS':
         return <Followers isDashboard={true} />
-        break;
       case 'FOLLOWING':
         return <Following isDashboard={true} />
-        break;
       case 'MESSAGES':
         return <Messages />
-        break;
+      default:
+        return null;
     }
   }
 

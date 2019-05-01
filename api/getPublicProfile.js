@@ -1,5 +1,4 @@
-function getPublicProfile(profile, user) {
-    // console.log(profile.username, user.username)
+const getPublicProfile = (profile, user) => {
     // This function takes in a profile object straight from MongoDB and returns
     // an object that excludes any private information per profile.settings
     let publicProfile = {
@@ -22,8 +21,6 @@ function getPublicProfile(profile, user) {
         birthday: profile.settings.displayBirthday ? profile.birthday : null,
         settings: profile.settings
     }
-
-
 
     switch (profile.settings.isPrivate) {
         case true:

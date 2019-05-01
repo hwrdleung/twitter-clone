@@ -1,13 +1,19 @@
 import React, { Component } from 'react';
 import { getFormattedDate } from '../../helpers';
 import { connect } from 'react-redux';
+import ImageUploader from '../image-uploader/imageUploader';
 import './style.css';
 
 const mapStateToProps = state => ({
   ...state
 });
 
+const mapDispatchToProps = dispatch => ({
+});
+
+
 class Bio extends Component {
+
   renderName = () => {
     let source = this.props.isDashboard ? this.props.user : this.props.profile;
     return <h5 className="font-weight-bold">{source.firstName}, {source.lastName}</h5>
@@ -33,29 +39,46 @@ class Bio extends Component {
     return <p className="my-3 font-italic">{source.bio}</p>
   }
 
-  renderChangePhotoBtn = () => {
-    if (this.props.isDashboard) return <button className="btn btn-primary my-2 mx-0">Change photo</button>
+  renderBirthday = () => {
+    let source = this.props.isDashboard ? this.props.user : this.props.profile;
+    if(source.settings.displayBirthday) return <p className="my-0 text-secondary">Birthday: {source.birthday}</p>
+  }
+
+  getProfileImgSrc = () => {
+    if(this.props.isDashboard) {
+      if(this.props.user.selectedFileBase64ProfileImg) {
+        return this.props.user.selectedFileBase64ProfileImg;
+      } else {
+        return this.props.user.profileImgUrl;
+      }
+    } else {
+      return this.props.profile.profileImgUrl;
+    }
   }
 
   render() {
     return (
       <div className="d-flex flex-row flex-wrap">
         <div id="portrait-container" className="mb-2 mr-3">
-          <img className="img-thumbnail" src={this.props.data.profileImgUrl} />
+          <img className="img-thumbnail" src={this.getProfileImgSrc()} alt="Profile"/>
+          {this.props.isDashboard ? <ImageUploader type="PROFILE"/> : null}
+
         </div>
 
+        
         <div id="bio-text-container">
           {this.renderName()}
           {this.renderUsername()}
           {this.renderEmail()}
           {this.renderLocation()}
           {this.renderBio()}
-          <p className="text-secondary">Joined: {getFormattedDate(this.props.data.dateJoined)}</p>
-          {this.renderChangePhotoBtn()}
+          {this.renderBirthday()}
+          <p className="my-0 text-secondary">Joined: {getFormattedDate(this.props.data.dateJoined)}</p>
+
         </div>
       </div >
     );
   }
 }
 
-export default connect(mapStateToProps)(Bio);
+export default connect(mapStateToProps, mapDispatchToProps)(Bio);

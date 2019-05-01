@@ -48,6 +48,12 @@ export const logout = (token) => dispatch => {
     }).catch(error => console.log(error));
 }
 
+export const clearUserState = () => dispatch => {
+    dispatch({
+        type: 'CLEAR_USER_STATE'
+    })
+}
+
 export const register = (data) => dispatch => {
     return new Promise((resolve, reject) => {
         axios.post('/api/auth/register', data).then(res => {
@@ -57,6 +63,23 @@ export const register = (data) => dispatch => {
                 dispatch({
                     type: 'UPDATE_USER_STATE',
                     payload: res.data.body.user
+                })
+            }
+            resolve(res.data);
+        }).catch(error => console.log(error));
+    }).catch(error => console.log(error));
+}
+
+export const deleteAccount = (data, token) => dispatch => {
+    let headers = {
+        'x-auth-token': token
+    }
+
+    return new Promise((resolve, reject) => {
+        axios.post('/api/auth/deleteAccount', data, { headers }).then(res => {
+            if (res.data.success) {
+                dispatch({
+                    type: 'CLEAR_USER_STATE',
                 })
             }
             resolve(res.data);
@@ -138,7 +161,7 @@ export const getFeed = (token) => dispatch => {
         axios.get('/api/user/getFeed', { headers }).then(res => {
             if (res.data.success) {
                 dispatch({
-                    type: 'UPDATE_USER_FEED',
+                    type: 'UPDATE_USER_STATE',
                     payload: res.data.body
                 })
             }
@@ -357,8 +380,95 @@ export const getUserCards = (usernames, isDashboard, key) => dispatch => {
             }).catch(error => console.log(error));
         }
     });
-
 }
+
+export const uploadImage = (base64, type, token) => dispatch => {
+    return new Promise((resolve, reject) => {
+        let headers = {
+            'x-auth-token': token
+        }
+        /*
+         data = {
+             type: 'PROFILE'  OR 'SPLASH
+             base64: file from file input
+         }
+        */
+
+        let data = {
+            type: type,
+            base64: base64.toString()
+        }
+        console.log(data);
+
+        axios.post('/api/images/uploadImage', data, { headers }).then(res => {
+            if (res.data.success) {
+                let payload = { ...res.data.body };
+                if (type === 'PROFILE') {
+                    payload.selectedFileProfileImg = null;
+                    payload.selectedFileBase64ProfileImg = null;
+                } else {
+                    payload.selectedFileSplashImg = null;
+                    payload.selectedFileBase64SplashImg = null;
+                }
+                console.log(payload);
+                dispatch({
+                    type: 'UPDATE_USER_STATE',
+                    payload: payload
+                })
+            }
+            resolve(res.data);
+        }).catch(error => console.log(error));
+    }).catch(error => console.log(error));
+}
+
+export const selectFile = (file, base64, type) => dispatch => {
+    let payload = null;
+
+    switch (type) {
+        case 'PROFILE':
+            payload = {
+                selectedFileProfileImg: file,
+                selectedFileBase64ProfileImg: base64
+            }
+            break;
+
+        case 'SPLASH':
+            payload = {
+                selectedFileSplashImg: file,
+                selectedFileBase64SplashImg: base64
+            }
+            break;
+        default:
+            break;
+    }
+
+    dispatch({
+        type: 'UPDATE_USER_STATE',
+        payload: payload
+    })
+}
+
+export const clearSelectedFile = (type) => dispatch => {
+    let payload = null;
+
+    if (type === 'PROFILE') {
+        payload = {
+            selectedFileProfileImg: null,
+            selectedFileBase64ProfileImg: null
+        }
+    } else if (type === 'SPLASH') {
+        payload = {
+            selectedFileSplashImg: null,
+            selectedFileBase64SplashImg: null
+        }
+    }
+
+    dispatch({
+        type: 'UPDATE_USER_STATE',
+        payload: payload
+    })
+}
+
 
 
 

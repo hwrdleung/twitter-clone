@@ -21,6 +21,7 @@ app.use(bodyParser.urlencoded({limit: '30mb', extended: true}));
 app.use('/api/public', require('./api/public'));
 app.use('/api/auth', require('./api/auth'));
 app.use('/api/user', require('./api/user'));
+app.use('/api/images', require('./api/images'));
 app.get('/*', (req, res) => res.sendFile(path.join(__dirname + '/client/build/index.html')));
 
 // Start server

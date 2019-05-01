@@ -1,6 +1,5 @@
 #splash-container {
-    height: 40vh;
-    width: 100vw;
+    height: 50vh;
     background-size: cover;
     background-repeat : no-repeat;
     background-position: center center;
@@ -13,6 +12,12 @@
 
 #tab-container ul {
     width: 6rem;
+}
+
+.quantity-badge {
+    position: absolute;
+    top: -5px;
+    right: -12px;
 }
 
 @media screen and (max-width: 500px){

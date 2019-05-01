@@ -26,7 +26,7 @@ class PublicFeed extends Component {
       let tweets = this.props.profile.tweets;
 
       if (tweets.length) {
-        return tweets.map((tweet) => <Tweet data={tweet} isDashboard={false}/>);
+        return tweets.slice().reverse().map((tweet) => <Tweet data={tweet} isDashboard={false} key={tweet._id}/>);
       }
     }
   }

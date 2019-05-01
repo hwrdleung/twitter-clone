@@ -4,8 +4,6 @@ export default (state = {}, action) => {
   switch (action.type) {
     case 'UPDATE_USER_STATE':
       return { ...state, ...action.payload };
-    case 'UPDATE_USER_FEED':
-      return { ...state, feed: action.payload }
     case 'CLEAR_USER_STATE':
       return initialUserState;
     case 'UPDATE_TWEET':

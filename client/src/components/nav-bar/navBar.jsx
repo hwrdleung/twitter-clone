@@ -52,7 +52,7 @@ class NavBar extends Component {
 
       case 'dashboard':
         // If user logs out, route to /
-        if (prevProps.user.isLoggedIn && !this.props.user.isLoggedIn) this.props.history.push('/');
+        if (!this.props.user.isLoggedIn) this.props.history.push('/');
         break;
 
       case 'profile':
@@ -60,12 +60,14 @@ class NavBar extends Component {
         if (prevProps.user.isLoggedIn && !this.props.user.isLoggedIn) this.props.history.push('/');
 
         // If user goes from one profile to another, reset profile current view to 'tweets'
-        if(previousView === 'profile' && prevProps.profile.username !== this.props.profile.username) this.props.setCurrentView('TWEETS', false)
+        if (previousView === 'profile' && prevProps.profile.username !== this.props.profile.username) this.props.setCurrentView('TWEETS', false)
         break;
 
       case 'settings':
         // If user logs out, route to /
         if (prevProps.user.isLoggedIn && !this.props.user.isLoggedIn) this.props.history.push('/');
+        break;
+      default:
         break;
     }
   }
@@ -76,13 +78,9 @@ class NavBar extends Component {
     }
   }
 
-  debug = () => {
-    console.log(this.props)
-  }
-
   render() {
     return (
-      <nav onClick={this.debug} className="navbar navbar-expand-md navbar-light fixed-top bg-light shadow">
+      <nav className="navbar navbar-expand-md navbar-light fixed-top bg-light shadow">
         <NavLink to={this.props.user.isLoggedIn ? '/dashboard' : '/'} className="navbar-brand">
           <FontAwesomeIcon className="fa-icon-link text-silver icon-md" size="1x" icon={['fas', 'dove']} />
         </NavLink>
@@ -94,7 +92,7 @@ class NavBar extends Component {
               <div data-toggle="collapse" data-target=".navbar-collapse" className="ml-auto"><NavLink to="/dashboard" className="nav-item nav-link">Dashboard</NavLink></div>
               <div data-toggle="collapse" data-target=".navbar-collapse" className="ml-auto"><NavLink to="/settings" className="nav-item nav-link">Settings</NavLink></div>
               <div data-toggle="collapse" data-target=".navbar-collapse" className="ml-auto"><NavLink to={this.getProfileUrl()} className="nav-item nav-link">{this.props.data.username}</NavLink></div>
-              <div data-toggle="collapse" data-target=".navbar-collapse" className="ml-auto"><a className="nav-item nav-link" onClick={this.logOutHandler}>Log out</a></div>
+              <div data-toggle="collapse" data-target=".navbar-collapse" className="ml-auto"><p className="nav-item clickable nav-link m-0" onClick={this.logOutHandler}>Log out</p></div>
             </div>
           </div>
         ) : (<div id="navBarMenu" className="ml-auto collapse navbar-collapse justify-content-end"><LoginForm /></div>)}

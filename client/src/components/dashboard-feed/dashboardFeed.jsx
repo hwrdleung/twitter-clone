@@ -3,18 +3,34 @@ import Tweeter from '../tweeter/tweeter';
 import Tweet from '../tweet/tweet';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getFeed } from '../../state/actions/action';
 import './style.css';
 
 const mapStateToProps = state => ({
   ...state
 });
 
+const mapDispatchToProps = dispatch => ({
+  getFeed: (token) => dispatch(getFeed(token))
+});
+
+
 class DashboardFeed extends Component {
-  renderFeed() {
-    // TODO: SET UP THE /getFeed ENDPOINT IN THE SERVER AND HOOK IT UP TO THIS COMPONENT
-    let tweets = this.props.user.tweets.slice().reverse()
-    if (tweets.length) {
-      return tweets.map((tweet) => <Tweet isDashboard={true} key={tweet._id} data={tweet} />);
+
+  componentWillMount() {
+    // Fetch feed data from server
+    let token = sessionStorage.getItem('twitterCloneToken');
+    if (this.props.user.following.length > 0) {
+      this.props.getFeed(token).catch(error => console.log(error));
+    }
+  }
+
+  renderFeed = () => {
+    let feed = this.props.user.feed.slice().reverse()
+    if (feed.length) {
+      return feed.map((tweet) => <Tweet isDashboard={true} data={tweet} key={tweet._id}/>);
+    } else {
+      return <p className="font-italic text-secondary">No feed.</p>
     }
   }
 
@@ -22,7 +38,7 @@ class DashboardFeed extends Component {
     return (
       <React.Fragment>
         <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
-        <h5>Tweets:</h5>
+        <h5>Feed:</h5>
         <div className="shadow mb-3 p-4 bg-light">
           <Tweeter />
         </div>
@@ -32,4 +48,4 @@ class DashboardFeed extends Component {
   }
 }
 
-export default connect(mapStateToProps)(DashboardFeed);
+export default connect(mapStateToProps, mapDispatchToProps)(DashboardFeed);

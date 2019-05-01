@@ -37,3 +37,35 @@ export const getBackgroundImgCss = url => {
         backgroundImage: `url(${url})`
     }
 }
+
+export const getBase64 = file => {
+    // This function takes an image file as a parameter and returns a promise
+    // containing the image's base64 dataUrl
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  export const getBase64FromUrl = (url) => {
+    return new Promise((resolve, reject) => {
+        let img = new Image();
+        img.src = url;
+        img.setAttribute('crossOrigin', 'anonymous');
+
+
+        img.onload = () => {
+            let canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            let ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            let dataURL = canvas.toDataURL("image/png");
+            dataURL = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+
+            resolve(dataURL); // the base64 string
+        }
+    })
+}
