@@ -16,7 +16,7 @@ class Bio extends Component {
 
   renderName = () => {
     let source = this.props.isDashboard ? this.props.user : this.props.profile;
-    return <h5 className="font-weight-bold">{source.firstName}, {source.lastName}</h5>
+    return <h5 className="font-weight-bold">{source.firstName} {source.lastName}</h5>
   }
 
   renderUsername = () => {

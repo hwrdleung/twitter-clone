@@ -18,13 +18,15 @@ app.use(bodyParser.json({limit: '30mb', extended: true}));
 app.use(bodyParser.urlencoded({limit: '30mb', extended: true}));
 
 // Routes
+app.use(express.static(path.join(__dirname, '/client/build')))
+app.use(express.static(path.join(__dirname, '/api')))
 app.use('/api/public', require('./api/public'));
 app.use('/api/auth', require('./api/auth'));
 app.use('/api/user', require('./api/user'));
 app.use('/api/images', require('./api/images'));
-app.get('/*', (req, res) => res.sendFile(path.join(__dirname + '/client/build/index.html')));
+app.get('/*', (req, res) => res.sendFile(path.join(__dirname, "/client/build/index.html")));
 
 // Start server
-app.listen(5000, () => {
+app.listen(process.env.PORT || 5000, () => {
     console.log('Server started');
 });

@@ -30,24 +30,6 @@ class PublicPage extends Component {
   // On load, get the username from the URL path and fetch profile data via actions
   componentWillMount() {
     let username = getUsernameFromPath(this.props.history.location.pathname);
-    this.refreshProfileData(username);
-
-    this.unlisten = this.props.history.listen((location) => {
-      let username = getUsernameFromPath(location.pathname);
-      this.refreshProfileData(username);
-    });
-  }
-
-  componentWillReceiveProps(newProps) {
-    // If user logs in while on public profile page, refresh data
-    if (!this.props.user.isLoggedIn && newProps.user.isLoggedIn) this.refreshProfileData(newProps.profile.username);
-  }
-
-  componentWillUnmount() {
-    this.unlisten();
-  }
-
-  refreshProfileData(username) {
     let token = sessionStorage.getItem('twitterCloneToken');
     this.props.getProfileData(username, token).catch(error => console.log(error));
   }

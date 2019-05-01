@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-export const setCurrentView = (view, isUser) => dispatch => {
-    if (isUser) {
+export const setCurrentView = (view, isDashboard) => dispatch => {
+    if (isDashboard) {
         dispatch({
             type: 'SET_USER_CURRENT_VIEW',
             payload: view
@@ -192,7 +192,6 @@ export const deleteTweet = (data, token, isDashboard) => dispatch => {
         let headers = {
             'x-auth-token': token
         }
-        console.log('making post request to server')
         axios.post('/api/user/deleteTweet', data, { headers }).then(res => {
             if (res.data.success) {
                 if (isDashboard) {

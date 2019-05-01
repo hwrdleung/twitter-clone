@@ -10,11 +10,11 @@ require("dotenv").config();
 router.get('/:username', (req, res) => {
     // Returns data for client to display public profile
     // Check req.headers for token.  
-    const token = req.header('x-auth-token') ? req.header('x-auth-token') : false;
+    const token = req.header('x-auth-token');
 
     let storage;
 
-    console.log('Client requesting profile data for ', req.params.username)
+    console.log('Client requesting profile data for', req.params.username)
     User.findOne({ username: req.params.username }).then(profile => {
         if (!profile) {
             res.json(new ServerResponse(false, 'User not found.'));

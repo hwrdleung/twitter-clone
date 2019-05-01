@@ -26,8 +26,8 @@ class DashboardFeed extends Component {
   }
 
   renderFeed = () => {
-    let feed = this.props.user.feed.slice().reverse()
-    if (feed.length) {
+    if (this.props.user.feed.length > 0) {
+      let feed = this.props.user.feed.slice().reverse()
       return feed.map((tweet) => <Tweet isDashboard={true} data={tweet} key={tweet._id}/>);
     } else {
       return <p className="font-italic text-secondary">No feed.</p>

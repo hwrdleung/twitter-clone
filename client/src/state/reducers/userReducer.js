@@ -9,7 +9,7 @@ export default (state = {}, action) => {
     case 'UPDATE_TWEET':
       // Look for tweet that matches action.payload and replace 
       let newState = { ...state };
-      let tweetIndex = newState.tweets.findIndex(tweet => {
+      let tweetIndex = newState.feed.findIndex(tweet => {
         return tweet._id === action.payload.tweet._id
       })
 
@@ -18,7 +18,7 @@ export default (state = {}, action) => {
         newState.stats = action.payload.profile.stats
       }
 
-      newState.tweets[tweetIndex] = action.payload.tweet;
+      newState.feed[tweetIndex] = action.payload.tweet;
       return newState;
     case 'SET_USER_CURRENT_VIEW':
       return { ...state, currentView: action.payload }

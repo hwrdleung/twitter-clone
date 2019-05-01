@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { like, reply, deleteTweet } from '../../state/actions/action';
+import { like, reply, deleteTweet, getFeed } from '../../state/actions/action';
 import Tweeter from '../tweeter/tweeter';
 import './style.css';
 import Modal from 'react-bootstrap/Modal';
@@ -14,8 +14,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  like: (data, token) => dispatch(like(data, token)),
+  like: (data, token, isDashboard) => dispatch(like(data, token, isDashboard)),
   reply: (data, token) => dispatch(reply(data, token)),
+  getFeed: (data, token) => dispatch(getFeed(data, token)),
   deleteTweet: (data, token, isDashboard) => dispatch(deleteTweet(data, token, isDashboard))
 });
 
@@ -44,7 +45,7 @@ class Tweet extends Component {
       tweetId: this.props.data._id
     }
 
-    this.props.like(data, token).catch(error => console.log(error));
+    this.props.like(data, token, true).catch(error => console.log(error));
   }
 
   handleReply = () => {
@@ -62,7 +63,10 @@ class Tweet extends Component {
     }
 
     this.props.deleteTweet(data, token, this.props.isDashboard).then(res => {
-      console.log(res)
+      if(this.props.isDashboard && res.success) {
+        let token = sessionStorage.getItem('twitterCloneToken');
+        this.props.getFeed(token).catch(error => console.log(error));
+      }
     }).catch(error => console.log(error));
   }
 
@@ -203,7 +207,7 @@ class Tweet extends Component {
           <div className="ml-3 my-0 flex-grow-1">
             <div className="d-flex flex-row flex-wrap justify-content-between tweet-header">
               <div className="d-flex flex-column align-items-start">
-                <p className="font-weight-bold my-0">{this.props.data.firstName}, {this.props.data.lastName}</p>
+                <p className="font-weight-bold my-0">{this.props.data.firstName} {this.props.data.lastName}</p>
                 <NavLink className="text-secondary my-0" to={getProfileUrl(this.props.data.username)}>@{this.props.data.username}</NavLink>
               </div>
               <p className="text-secondary">{getFormattedDate(this.props.data.date)}</p>

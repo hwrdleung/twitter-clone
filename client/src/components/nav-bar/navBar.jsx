@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { NavLink, withRouter } from 'react-router-dom';
 import LoginForm from '../login-form/loginForm';
-import { logout, setCurrentView } from '../../state/actions/action';
+import { logout, setCurrentView, getProfileData } from '../../state/actions/action';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './style.css';
 
@@ -12,7 +12,9 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   logout: (token) => dispatch(logout(token)),
-  setCurrentView: (view, isDashboard) => dispatch(setCurrentView(view, isDashboard))
+  setCurrentView: (view, isDashboard) => dispatch(setCurrentView(view, isDashboard)),
+  getProfileData: (username, token) => dispatch(getProfileData(username, token))
+
 });
 
 
@@ -32,7 +34,6 @@ class NavBar extends Component {
   autoRouteHandler = (prevProps) => {
     // This function handles auto-routing and resetting of views throughout the entire app based on changes to the state.
     let currentView = this.props.history.location.pathname.split('/')[1];
-    let previousView = prevProps.history.location.pathname.split('/')[1];
 
     switch (currentView) {
       case '':
@@ -56,11 +57,22 @@ class NavBar extends Component {
         break;
 
       case 'profile':
+        let previousUsername = prevProps.location.pathname.split('/')[2];
+        let username = this.props.location.pathname.split('/')[2];
+        let token = sessionStorage.getItem('twitterCloneToken');
+
         // If user logs out, route to /
         if (prevProps.user.isLoggedIn && !this.props.user.isLoggedIn) this.props.history.push('/');
 
-        // If user goes from one profile to another, reset profile current view to 'tweets'
-        if (previousView === 'profile' && prevProps.profile.username !== this.props.profile.username) this.props.setCurrentView('TWEETS', false)
+        // If user logs in, refresh data
+        if (!prevProps.user.isLoggedIn && this.props.user.isLoggedIn) this.props.getProfileData(username, token).catch(error => console.log(error));
+
+        // If user goes from one profile to another, reset profile current view to 'tweets' and refresh profile data
+        if (previousUsername !== username) {
+          this.props.getProfileData(username, token).catch(error => console.log(error));
+          this.props.setCurrentView('TWEETS', false);
+        }
+
         break;
 
       case 'settings':

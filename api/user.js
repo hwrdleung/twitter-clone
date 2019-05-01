@@ -106,11 +106,11 @@ router.put('/changePassword', verifyToken, (req, res) => {
 });
 
 router.get('/getFeed', verifyToken, (req, res) => {
+    console.log('Client request for dashboard feed.')
     User.findOne({ _id: req._id }).then(user => {
 
         let queries = [...user.following];
         queries.unshift(user.username); // Include user's own tweets in the feed
-
         return User.find({ username: { $in: queries } });
     }).then(results => {
         let tweetIndex = 0;
@@ -120,7 +120,7 @@ router.get('/getFeed', verifyToken, (req, res) => {
         // Get maxTweetIndex
         let maxTweetIndex = 0;
         results.forEach(profile => {
-            if (profile.following.length > maxTweetIndex) maxTweetIndex = profile.tweets.length - 1;
+            if (profile.tweets.length > maxTweetIndex) maxTweetIndex = profile.tweets.length - 1;
         });
 
         generateFeed(tweetIndex, maxTweetIndex, results, feed, feedMaxLength);
@@ -188,11 +188,11 @@ router.post('/deleteTweet', verifyToken, (req, res) => {
         return user.save();
     }).then(user => {
         if (!user) {
-            res.json(new ServerResponse(false, 'System error: failed to save new tweet.'));
+            res.json(new ServerResponse(false, 'System error: failed to delete tweet.'));
             throw ('System error: failed to save new tweet.');
         } else {
             user.messages = null;
-            res.json(new ServerResponse(true, 'New tweet saved successfully.', user));
+            res.json(new ServerResponse(true, 'Tweet deleted.', user));
         }
     }).catch(error => console.log(error));
 });
