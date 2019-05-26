@@ -26,6 +26,7 @@ class LoginForm extends Component {
   formSubmitHandler = (e) => {
     e.preventDefault();
     this.setState({isLoading : true});
+    
     let data = {
       username: e.target.username.value,
       password: e.target.password.value

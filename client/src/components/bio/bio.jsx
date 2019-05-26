@@ -8,77 +8,49 @@ const mapStateToProps = state => ({
   ...state
 });
 
-const mapDispatchToProps = dispatch => ({
-});
-
-
 class Bio extends Component {
+  // This component is shared between dashboard page and profile page.
 
-  renderName = () => {
-    let source = this.props.isDashboard ? this.props.user : this.props.profile;
-    return <h5 className="font-weight-bold">{source.firstName} {source.lastName}</h5>
-  }
-
-  renderUsername = () => {
-    let source = this.props.isDashboard ? this.props.user : this.props.profile;
-    return <p className="text-secondary mb-1">@{source.username}</p>
-  }
-
-  renderEmail = () => {
-    let source = this.props.isDashboard ? this.props.user : this.props.profile;
-    if (source.settings.displayLocation) return <p className="m-0">{source.email}</p>
-  }
-
-  renderLocation = () => {
-    let source = this.props.isDashboard ? this.props.user : this.props.profile;
-    if (source.settings.displayLocation) return <p className="m-0">{source.city}, {source.state}</p>
-  }
-
-  renderBio = () => {
-    let source = this.props.isDashboard ? this.props.user : this.props.profile;
-    return <p className="my-3 font-italic">{source.bio}</p>
-  }
-
-  renderBirthday = () => {
-    let source = this.props.isDashboard ? this.props.user : this.props.profile;
-    if(source.settings.displayBirthday) return <p className="my-0 text-secondary">Birthday: {source.birthday}</p>
+  getSource = () => {
+    // This function specifies the appropriate data source for the component based on this.props.isDashboard.
+    if (this.props.isDashboard) {
+      return this.props.user;
+    } else {
+      return this.props.profile;
+    }
   }
 
   getProfileImgSrc = () => {
-    if(this.props.isDashboard) {
-      if(this.props.user.selectedFileBase64ProfileImg) {
+    // First, check for a selected image.  Selected image would be present if user is changing their photo.
+    if (this.props.isDashboard) {
+      if (this.props.user.selectedFileBase64ProfileImg) {
         return this.props.user.selectedFileBase64ProfileImg;
-      } else {
-        return this.props.user.profileImgUrl;
       }
-    } else {
-      return this.props.profile.profileImgUrl;
     }
+    // Default: return profileImgUrl
+    return this.getSource().profileImgUrl;
   }
 
   render() {
     return (
       <div className="d-flex flex-row flex-wrap">
         <div id="portrait-container" className="mb-2 mr-3">
-          <img className="img-thumbnail" src={this.getProfileImgSrc()} alt="Profile"/>
-          {this.props.isDashboard ? <ImageUploader type="PROFILE"/> : null}
-
+          <img className="img-thumbnail" src={this.getProfileImgSrc()} alt="Profile" />
+          {this.props.isDashboard ? <ImageUploader type="PROFILE" /> : null}
         </div>
 
-        
         <div id="bio-text-container">
-          {this.renderName()}
-          {this.renderUsername()}
-          {this.renderEmail()}
-          {this.renderLocation()}
-          {this.renderBio()}
-          {this.renderBirthday()}
+          <h5 className="font-weight-bold">{this.getSource().firstName} {this.getSource().lastName}</h5>
+          <p className="text-secondary mb-1">@{this.getSource().username}</p>
+          {this.getSource().settings.displayLocation ? <p className="m-0">{this.getSource().email}</p> : null}
+          {this.getSource().settings.displayLocation ? <p className="m-0">{this.getSource().city}, {this.getSource().state}</p> : null}
+          <p className="my-3 font-italic">{this.getSource().bio}</p>
+          {this.getSource().settings.displayBirthday ? <p className="my-0 text-secondary">Birthday: {this.getSource().birthday}</p> : null}
           <p className="my-0 text-secondary">Joined: {getFormattedDate(this.props.data.dateJoined)}</p>
-
         </div>
       </div >
     );
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Bio);
+export default connect(mapStateToProps)(Bio);

@@ -21,9 +21,7 @@ const mapDispatchToProps = dispatch => ({
 class NavBar extends Component {
   logOutHandler = () => {
     let token = sessionStorage.getItem('twitterCloneToken');
-    this.props.logout(token).then(res => {
-
-    }).catch(error => console.log(error));
+    this.props.logout(token).catch(error => console.log(error));
 
   }
 

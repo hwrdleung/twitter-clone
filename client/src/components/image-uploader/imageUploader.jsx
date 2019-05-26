@@ -23,6 +23,7 @@ class ImageUploader extends Component {
             isLoading: false
         }
     }
+
     // This component handles image upload for both profile and splash images
     // Selected files are stored in the store
 
@@ -39,7 +40,7 @@ class ImageUploader extends Component {
     }
 
     fileUploadHandler = () => {
-        this.setState({ isLoading: true })
+        this.setState({ isLoading: true });
         let base64 = this.props.type === 'PROFILE' ? this.props.user.selectedFileBase64ProfileImg : this.props.user.selectedFileBase64SplashImg;
         let token = sessionStorage.getItem('twitterCloneToken');
         let type = this.props.type;
@@ -77,12 +78,10 @@ class ImageUploader extends Component {
     }
 
     renderLoader = () => {
-        return <div className="text-center my-2"><Spinner
-            variant="success"
-            animation="border"
-            size="sm"
-            role="status"
-        /></div>
+        return (
+            <div className="text-center my-2">
+                <Spinner variant="success" animation="border" size="sm" role="status" /></div>
+        )
     }
 
     render() {

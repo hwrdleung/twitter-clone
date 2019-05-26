@@ -8,7 +8,6 @@ import Followers from '../followers/followers';
 import Following from '../following/following';
 import { getProfileData, follow } from '../../state/actions/action';
 import { getUsernameFromPath } from '../../helpers';
-import './style.css';
 import { Spinner } from 'react-bootstrap';
 
 const mapStateToProps = state => ({

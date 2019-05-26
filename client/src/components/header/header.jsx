@@ -16,8 +16,6 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class Header extends Component {
-
-
   tabClickHandler = (view) => {
     let viewOptions = ['TWEETS', 'FOLLOWING', 'FOLLOWERS', 'MESSAGES'];
 
@@ -32,9 +30,7 @@ class Header extends Component {
   }
 
   renderQuantityBadge = (number) => {
-    if (this.props.isDashboard && number > 0) {
-      return <Badge className="quantity-badge" variant="danger">{number}</Badge>
-    }
+    if (this.props.isDashboard && number > 0) return <Badge className="quantity-badge" variant="danger">{number}</Badge>
   }
 
   renderMessagesStat = () => {
@@ -49,16 +45,15 @@ class Header extends Component {
   }
 
   getSplashImgUrl = () => {
+    // First, check for selected image.  Selected image would be preset if user is changing photo.
     if(this.props.isDashboard){
       if(this.props.user.selectedFileBase64SplashImg) {
         return this.props.user.selectedFileBase64SplashImg;
-      } else {
-        return this.props.user.splashImgUrl;
       }
-    } else {
-      return this.props.profile.splashImgUrl;
-    }
 
+      // Default: return splashImgUrl
+      return this.props.isDashboard ? this.props.user.splashImgUrl : this.props.profile.splashImgUrl;
+    }
   }
   
   render() {

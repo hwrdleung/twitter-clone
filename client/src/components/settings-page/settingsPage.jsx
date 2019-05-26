@@ -136,7 +136,6 @@ class SettingsPage extends Component {
   }
 
   isFormValid = (keys) => {
-
     keys.forEach(key => {
       this.validateField(key, this.state[key]);
     });

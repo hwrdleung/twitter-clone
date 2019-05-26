@@ -26,6 +26,7 @@ class HomePage extends Component {
               <li className="my-3"><h5>Database: MongoDB</h5></li>
             </ul>
           </div>
+          
           <div className="col-md-6 d-flex align-items-center justify-content-center">
             <div className="d-flex flex-column">
               <FontAwesomeIcon icon={['fas', 'dove']} className="icon-md mb-2 text-primary"/>

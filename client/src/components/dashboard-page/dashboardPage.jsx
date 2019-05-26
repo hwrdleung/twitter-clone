@@ -3,7 +3,6 @@ import Header from '../header/header'
 import DashboardFeed from '../dashboard-feed/dashboardFeed'
 import Bio from '../bio/bio';
 import { connect } from 'react-redux';
-import './style.css';
 import { setCurrentView } from '../../state/actions/action';
 import Followers from '../followers/followers';
 import Following from '../following/following';
@@ -26,25 +25,23 @@ class DashboardPage extends Component {
 
   renderComponentBody() {
     switch (this.props.user.currentView) {
-      case 'TWEETS':
-        return <DashboardFeed />
-      case 'FOLLOWERS':
-        return <Followers isDashboard={true} />
-      case 'FOLLOWING':
-        return <Following isDashboard={true} />
-      case 'MESSAGES':
-        return <Messages />
-      default:
-        return null;
+      case 'TWEETS': return <DashboardFeed />
+      case 'FOLLOWERS': return <Followers isDashboard={true} />
+      case 'FOLLOWING': return <Following isDashboard={true} />
+      case 'MESSAGES': return <Messages />
+      default: return null;
     }
   }
 
   renderLoader = () => {
-    return <div className="text-center my-5 py-5 container-fluid"><Spinner
-      variant="primary"
-      animation="border"
-      role="status"
-    /></div>
+    return (
+      <div className="text-center my-5 py-5 container-fluid">
+        <Spinner
+          variant="primary"
+          animation="border"
+          role="status"
+        /></div>
+    )
   }
 
   render() {

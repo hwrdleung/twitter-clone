@@ -16,10 +16,19 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class Followers extends Component {
+    // This component renders user cards for the use's / profile's followers.
     constructor() {
         super();
         this.state = {
             isLoading: true
+        }
+    }
+
+    getSource = () => {
+        if(this.props.isDashboard){
+            return this.props.user;
+        } else {
+            return this.props.profile;
         }
     }
 
@@ -38,16 +47,17 @@ class Followers extends Component {
 
     refreshUserCards = () => {
         this.setState({ isLoading: true })
-        let source = this.props.isDashboard ? this.props.user : this.props.profile;
 
         // Update store with userCards for FOLLOWERS
-        this.props.getUserCards(source.followers, this.props.isDashboard, 'followersUserCards').then(res => {
+        this.props.getUserCards(this.getSource().followers, this.props.isDashboard, 'followersUserCards')
+        .then(() => {
             this.setState({ isLoading: false })
         }).catch(error => console.log(error));
 
         // Update store with userCards for INCOMING FOLLOW REQUESTS
         if (this.props.isDashboard) {
-            this.props.getUserCards(source.incomingFollowRequests, this.props.isDashboard, 'incomingFollowRequestsUserCards').then(res => {
+            this.props.getUserCards(this.getSource().incomingFollowRequests, this.props.isDashboard, 'incomingFollowRequestsUserCards')
+            .then(() => {
                 this.setState({ isLoading: false })
             }).catch(error => console.log(error));
         }
@@ -69,39 +79,34 @@ class Followers extends Component {
             return <div className="container text-center py-4"><Spinner animation="border" variant="primary" /></div>
         }
 
-        let source = this.props.isDashboard ? this.props.user : this.props.profile;
-
-        if (source.followers.length === 0) {
+        if (this.getSource().followers.length === 0) {
             return (
                 <div className="container-fluid">
                     <p className="text-center small font-italic my-5 text-secondary">
-                        {source.username} has no followers.</p>
+                        {this.getSource().username} has no followers.</p>
                 </div>
             )
         } else {
             return <div className="d-flex flex-row flex-wrap mb-5 user-cards-container">
-                {source.followersUserCards.map(userCard =>
+                {this.getSource().followersUserCards.map(userCard =>
                 (<UserCard data={userCard} />))}
              </div>
-
         }
     }
 
     renderFollowRequests = () => {
-        let source = this.props.isDashboard ? this.props.user : this.props.profile;
-
         if (this.state.isLoading) return null;
 
         // Only render follow requests for dashboard component.
-        if (!this.props.isDashboard) {
-            return null
-        } else if (source.incomingFollowRequestsUserCards.length > 0) {
-            return (
-                <React.Fragment>
+        if (!this.props.isDashboard) return null;
+
+        if (this.getSource().incomingFollowRequestsUserCards.length > 0) {
+            return (<React.Fragment>
                     <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
                     <h5>Follow Requests:</h5>
+
                     <div className="d-flex flex-row mb-5 user-cards-container">
-                        {source.incomingFollowRequestsUserCards.map(userCard => (
+                        {this.getSource().incomingFollowRequestsUserCards.map(userCard => (
                             <div className="text-center">
                                 <UserCard data={userCard} />
 
@@ -121,23 +126,17 @@ class Followers extends Component {
                             </div>
                         ))}
                     </div>
-                </React.Fragment>
-            );
+                </React.Fragment>);
         }
     }
 
     render() {
-        return (
-            <div>
+        return (<div>
                 {this.renderFollowRequests()}
-
                 <FontAwesomeIcon icon={['fas', 'dove']} className="icon-sm mb-2 text-primary" />
                 <h5>Followers:</h5>
-                <div className="d-flex flex-row flex-wrap">
-                    {this.renderFollowers()}
-                </div>
-            </div>
-        )
+                <div className="d-flex flex-row flex-wrap">{this.renderFollowers()}</div>
+            </div>)
     }
 }
 

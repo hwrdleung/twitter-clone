@@ -28,12 +28,10 @@ class Messages extends Component {
   }
 
   componentWillMount() {
-    this.props
-      .getMessages(sessionStorage.getItem("twitterCloneToken"))
+    this.props.getMessages(sessionStorage.getItem("twitterCloneToken"))
       .then(res => {
-        this.setState({ messages: res.body.messages, isLoading: false })
-      })
-      .catch(error => console.log(error));
+        this.setState({ messages: res.body.messages, isLoading: false });
+      }).catch(error => console.log(error));
   }
 
   deleteMessageHandler = message => {
@@ -44,12 +42,10 @@ class Messages extends Component {
 
     let token = sessionStorage.getItem("twitterCloneToken");
 
-    this.props
-      .updateMessages(data, token)
+    this.props.updateMessages(data, token)
       .then(res => {
-        this.setState({ messages: res.body.messages })
-      })
-      .catch(error => console.log(error));
+        this.setState({ messages: res.body.messages });
+      }).catch(error => console.log(error));
   };
 
   toggleMessageModal = (message) => {
@@ -65,11 +61,12 @@ class Messages extends Component {
         task: 'READ',
         messageId: message._id
       }
+
       let token = sessionStorage.getItem('twitterCloneToken');
 
       this.props.updateMessages(data, token).then(res => {
         this.setState({ messages: res.body.messages });
-      });
+      }).catch(error => console.log(error));
     }
   }
 
@@ -116,37 +113,36 @@ class Messages extends Component {
 
   renderMessages = () => {
     if (this.state.isLoading) {
-      return <div className="container text-center py-4"><Spinner animation="border" variant="primary" /></div>
+      return <div className="container text-center py-4"><Spinner animation="border" variant="primary" /></div>;
     }
 
     if (this.state.messages.length === 0) {
       return <div className="container"><p className="font-italic text-secondary text-center py-4">You have no messages.</p></div>
-    } else {
-      return (
-        <div id="messages-container">
-          {this.state.messages.map(message => (
-            <React.Fragment>
-              <div
-                style={this.getMessageBgColor(message.read)}
-                className="row m-0 p-0 d-flex message-row flex-row flex-nowrap justify-content-start align-items-center"
-                onClick={() => {
-                  this.toggleMessageModal(message);
-                  this.markRead(message)
-                }}
-              >
-                <p className="col-md-3 m-0 px-2 py-1 small message-date">{getFormattedDate(message.date, true)}</p>
-                <p className="col-md-3 m-0 p-1 message-from">{message.from}</p>
-                <p className="col-md-5 m-0 p-1 message-subject">{message.subject}</p>
-
-                <FontAwesomeIcon icon={['fas', 'trash']} onClick={(e) => { e.stopPropagation(); this.deleteMessageHandler(message) }}
-                  className="col-md-1 mr-2 p-0 clickable trash-icon" />
-              </div>
-
-            </React.Fragment>
-          ))}
-        </div>
-      );
     }
+
+    return (
+      <div id="messages-container">
+        {this.state.messages.map(message => (
+          <React.Fragment>
+            <div style={this.getMessageBgColor(message.read)}
+              className="row m-0 p-0 d-flex message-row flex-row flex-nowrap justify-content-start align-items-center"
+              onClick={() => {
+                this.toggleMessageModal(message);
+                this.markRead(message)
+              }}>
+
+              <p className="col-md-3 m-0 px-2 py-1 small message-date">{getFormattedDate(message.date, true)}</p>
+              <p className="col-md-3 m-0 p-1 message-from">{message.from}</p>
+              <p className="col-md-5 m-0 p-1 message-subject">{message.subject}</p>
+
+              <FontAwesomeIcon icon={['fas', 'trash']} onClick={(e) => { e.stopPropagation(); this.deleteMessageHandler(message) }}
+                className="col-md-1 mr-2 p-0 clickable trash-icon" />
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    );
+
   };
 
   render() {
